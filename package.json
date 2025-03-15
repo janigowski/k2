@@ -2,6 +2,10 @@
   "name": "k2",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -9,6 +13,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "vitest": "^3.0.8"
+    "mitt": "^3.0.1",
+    "vitest": "^3.0.8",
+    "web-midi-test": "^1.2.8",
+    "webmidi": "^3.1.12"
   }
 }
