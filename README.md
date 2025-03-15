@@ -10,10 +10,10 @@ A lightweight JavaScript wrapper for the Allen&Heath K2 MIDI controller designed
 
 ## Official Resources 📚
 
-- [Allen&Heath K2 Product Page](https://www.allen-heath.com/hardware/xone-k2/)
-- [K2 User Guide](https://www.allen-heath.com/media/Xone-K2-User-Guide-AP8509_2.pdf)
-- [K2 MIDI Protocol Guide](https://www.allen-heath.com/media/Xone-K2-MIDI-Protocol-V2.pdf)
-- [K2 Editor Software](https://www.allen-heath.com/hardware/xone-k2/)
+- [Allen&Heath Xone:K2 Product Page](https://www.allen-heath.com/hardware/xone-series/xonek2/)
+- [Xone:K2 Resources](https://www.allen-heath.com/hardware/xone-series/xonek2/resources/)
+- [Xone:K2 User Guide](https://www.allen-heath.com/content/uploads/2023/06/XoneK2_UG_AP8509_3.pdf)
+
 
 ## Development Status 🚧
 
