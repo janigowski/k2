@@ -1,4 +1,4 @@
-# K2 🎛️
+# Allen&Heath K2 MIDI Controller Library 🎛️
 
 > ⚠️ **Work In Progress**: This library is currently under active development and not yet published. Star the repository to stay updated!
 
@@ -7,6 +7,13 @@
 [![Status: WIP](https://img.shields.io/badge/Status-Work%20In%20Progress-yellow.svg)]()
 
 A lightweight JavaScript wrapper for the Allen&Heath K2 MIDI controller designed with creative developers and new media artists in mind. Transform your K2 into an intuitive interface for interactive installations, live performances, generative art, and creative coding projects.
+
+## Official Resources 📚
+
+- [Allen&Heath K2 Product Page](https://www.allen-heath.com/hardware/xone-k2/)
+- [K2 User Guide](https://www.allen-heath.com/media/Xone-K2-User-Guide-AP8509_2.pdf)
+- [K2 MIDI Protocol Guide](https://www.allen-heath.com/media/Xone-K2-MIDI-Protocol-V2.pdf)
+- [K2 Editor Software](https://www.allen-heath.com/hardware/xone-k2/)
 
 ## Development Status 🚧
 
@@ -355,37 +362,60 @@ Once you have the user's mappings, you can create a mapping configuration:
 ```typescript
 // Convert UI mappings to K2 mapping configuration
 function createMappingConfig(uiMappings) {
-  return {
+  const config = {
     name: "User DAW Setup",
-    controls: Object.entries(uiMappings).reduce((acc, [action, mapping]) => {
-      acc[mapping.control] = {
-        action,
-        // Add feedback for buttons
-        ...(mapping.type === 'button' && {
-          feedback: `${action}.active`
-        }),
-        // Add range for knobs/faders
-        ...(mapping.type === 'knob' && {
-          range: [0, 127]
-        })
-      };
-      return acc;
-    }, {}),
-    feedback: Object.entries(uiMappings)
-      .filter(([_, mapping]) => mapping.type === 'button')
-      .reduce((acc, [action, mapping]) => {
-        acc[`led.${mapping.control}`] = `${action}.active`;
-        return acc;
-      }, {})
+    controls: {},
+    feedback: {}
   };
+
+  // Convert each mapping to control configuration
+  for (const [action, mapping] of Object.entries(uiMappings)) {
+    // Set up control mapping
+    config.controls[mapping.control] = {
+      action: action
+    };
+
+    // Add specific settings based on control type
+    if (mapping.type === 'button') {
+      config.controls[mapping.control].feedback = `${action}.active`;
+      config.feedback[`led.${mapping.control}`] = `${action}.active`;
+    }
+
+    if (mapping.type === 'knob' || mapping.type === 'fader') {
+      config.controls[mapping.control].range = [0, 127];
+    }
+  }
+
+  return config;
 }
 
-// Use the mappings
-const userMappings = createMappingConfig(savedMappings);
+// Example usage
+const mappings = {
+  'transport.play': { type: 'button', control: 'button1' },
+  'mixer.volume': { type: 'knob', control: 'knob1' }
+};
+
+const userMappings = createMappingConfig(mappings);
 const k2 = createK2Controller({ channel: 1 });
 const dawMapping = createMappingLayer(k2, userMappings);
 
-// ... rest of your application code ...
+// The resulting configuration will be:
+// {
+//   name: "User DAW Setup",
+//   controls: {
+//     button1: {
+//       action: "transport.play",
+//       feedback: "transport.play.active"
+//     },
+//     knob1: {
+//       action: "mixer.volume",
+//       range: [0, 127]
+//     }
+//   },
+//   feedback: {
+//     "led.button1": "transport.play.active"
+//   }
+// }
 ```
 
 ## Hardware Layout 🎛️
