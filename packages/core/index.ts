@@ -1,3 +1,4 @@
+import { K2 } from "./K2";
 import type { Channel } from "./types";
 
 
