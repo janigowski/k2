@@ -3,7 +3,8 @@ import mitt, { type Emitter, type Handler } from "mitt";
 import { buttons, type Button } from "./controlls";
 
 type ButtonEvents = {
-    [K in Button['name']as `${K}.press`]: Button;
+    'exit-setup.press': Button;
+    'exit-setup.release': Button;
 };
 
 type Events = {
@@ -52,7 +53,7 @@ export class K2 {
 
         if (this.input) {
             this.input.addEventListener('midimessage', (e) => {
-                // console.log('noteon', e, JSON.stringify(e.data))
+                console.log('midimessage', e, JSON.stringify(e.data))
 
                 const button = buttons.find(b => b.midi === e.data[1]);
 

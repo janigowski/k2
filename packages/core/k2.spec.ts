@@ -39,30 +39,33 @@ describe("K2", () => {
         midiAccess.addOutput("output-2", "XONE:K2");
 
         const k2 = new K2(2)
+        await k2.connect()
 
         const handler = vi.fn()
         k2.on('exit-setup.press', handler)
 
-        await k2.connect()
-        k2.attachEvents()
-
-        const input = Array.from(midiAccess.inputs.values())
-            .find(input => input.name === "XONE:K2");
-
-        if (!input) {
-            throw new Error("XONE:K2 input not found");
-        }
-
-        (input as any).receiveMIDIMessage([144, 23, 127]);
+        const input = midiAccess.inputs.get('input-2')
+        input?.receiveMIDIMessage([144, 23, 127])
 
         expect(handler).toHaveBeenCalled()
     })
 
-    it.skip('notify about button release', () => {
-        // const k2 = new K2(2)
-        // k2.on('buttonRelease', (button) => {
-        //     expect(button).toBe(1)
-        // })
+    it('notify about button release', async () => {
+        const midiAccess = testEnv.mockMIDIAccess;
+
+        midiAccess.addInput("input-2", "XONE:K2");
+        midiAccess.addOutput("output-2", "XONE:K2");
+
+        const k2 = new K2(2)
+        await k2.connect()
+
+        const handler = vi.fn()
+        k2.on('exit-setup.release', handler)
+
+        const input = midiAccess.inputs.get('input-2')
+        input?.receiveMIDIMessage([144, 23, 0])
+
+        expect(handler).toHaveBeenCalled()
     })
 
     it.skip('should return all buttons', () => {
