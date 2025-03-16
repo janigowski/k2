@@ -1,10 +1,10 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { buttons, type Button } from "./controlls";
+import { buttons, type Button, type StrippedButton } from "./controlls";
 
 type ButtonEvents = {
-    'exit-setup.press': Button;
-    'exit-setup.release': Button;
+    'button.press': StrippedButton;
+    'button.release': StrippedButton;
 };
 
 type Events = {
@@ -58,19 +58,25 @@ export class K2 {
                 const button = buttons.find(b => b.midi === e.data[1]);
 
                 if (button) {
-                    if (e.data[2] === 127) {
-                        const eventName = button.name + '.press' as keyof Events
+                    const strippedButton = this.stripButton(button)
+                    this.emitter.emit('button.press', strippedButton)
 
-                        this.emitter.emit(eventName, button);
+                    if (e.data[2] === 127) {
+                        this.emitter.emit('button.press', strippedButton);
                     }
 
                     if (e.data[2] === 0) {
-                        const eventName = button.name + '.release' as keyof Events
-
-                        this.emitter.emit(eventName, button);
+                        this.emitter.emit('button.release', strippedButton);
                     }
                 }
             })
+        }
+    }
+
+    private stripButton(button: Button) {
+        return {
+            name: button.name,
+            midi: button.midi,
         }
     }
 }   

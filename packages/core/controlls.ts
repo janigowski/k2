@@ -28,6 +28,11 @@ export type Button = {
     green: string;
 };
 
+export type StrippedButton = {
+    name: ButtonName;
+    midi: number;
+};
+
 export type Controll = {
     name: ControllName;
     id: number;
@@ -172,7 +177,7 @@ export const buttons: Button[] = [
     },
     {
         name: "exit-setup",
-        midi: 23,
+        midi: 15,
         red: "D#0",
         amber: "G0",
         green: "B0",

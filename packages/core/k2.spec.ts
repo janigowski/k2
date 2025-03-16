@@ -42,12 +42,17 @@ describe("K2", () => {
         await k2.connect()
 
         const handler = vi.fn()
-        k2.on('exit-setup.press', handler)
+        k2.on('button.press', handler)
 
         const input = midiAccess.inputs.get('input-2')
-        input?.receiveMIDIMessage([144, 23, 127])
+        input?.receiveMIDIMessage([144, 15, 127])
 
-        expect(handler).toHaveBeenCalled()
+        expect(handler).toHaveBeenCalledWith(
+            {
+                name: 'exit-setup',
+                midi: 15,
+            }
+        )
     })
 
     it('notify about button release', async () => {
@@ -60,12 +65,17 @@ describe("K2", () => {
         await k2.connect()
 
         const handler = vi.fn()
-        k2.on('exit-setup.release', handler)
+        k2.on('button.release', handler)
 
         const input = midiAccess.inputs.get('input-2')
-        input?.receiveMIDIMessage([144, 23, 0])
+        input?.receiveMIDIMessage([144, 15, 0])
 
-        expect(handler).toHaveBeenCalled()
+        expect(handler).toHaveBeenCalledWith(
+            {
+                name: 'exit-setup',
+                midi: 15,
+            }
+        )
     })
 
     it.skip('should return all buttons', () => {
