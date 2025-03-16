@@ -5,10 +5,14 @@ const k2 = createK2(2)
 const statusEl = document.getElementById('status')
 const eventsEl = document.getElementById('events')
 const connectButton = document.getElementById('connect')
+const modeToggleButton = document.getElementById('modeToggle')
 
-if (!statusEl || !eventsEl || !connectButton) {
+if (!statusEl || !eventsEl || !connectButton || !modeToggleButton) {
     throw new Error('Required DOM elements not found')
 }
+
+type Mode = 'click' | 'hover'
+let currentMode: Mode = 'click'
 
 function logEvent(message: string) {
     if (!eventsEl) return
@@ -52,6 +56,18 @@ function updateButtonState(buttonId: ButtonName, color: Color | 'off') {
     })
 }
 
+function handleColorActivation(buttonId: ButtonName, color: Color | 'off') {
+    if (color === 'off') {
+        k2.unhighlightButton(buttonId)
+        updateButtonState(buttonId, 'off')
+        logEvent(`Button ${buttonId} unhighlighted`)
+    } else {
+        k2.highlightButton(buttonId, color)
+        updateButtonState(buttonId, color)
+        logEvent(`Button ${buttonId} highlighted with ${color}`)
+    }
+}
+
 k2.on('button.press', (button: K2Button) => {
     logEvent(`Button pressed: ${button.name}`)
 })
@@ -64,24 +80,39 @@ connectButton.addEventListener('click', () => {
     k2.connect()
 })
 
+// Mode toggle handler
+modeToggleButton.addEventListener('click', () => {
+    currentMode = currentMode === 'click' ? 'hover' : 'click'
+    modeToggleButton.textContent = `Mode: ${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`
+    modeToggleButton.setAttribute('data-mode', currentMode)
+    logEvent(`Switched to ${currentMode} mode`)
+})
+
 document.addEventListener('DOMContentLoaded', () => {
     const colorButtons = document.querySelectorAll<HTMLButtonElement>('.color-button')
 
     colorButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const buttonId = button.getAttribute('data-button')
-            const color = button.getAttribute('data-color')
+        const buttonId = button.getAttribute('data-button') as ButtonName
+        const color = button.getAttribute('data-color') as Color | 'off'
+        if (!buttonId || !color) return
 
-            if (buttonId && color) {
-                if (color === 'off') {
-                    k2.unhighlightButton(buttonId as ButtonName)
-                    updateButtonState(buttonId as ButtonName, 'off')
-                } else {
-                    k2.highlightButton(buttonId as ButtonName, color as Color)
-                    updateButtonState(buttonId as ButtonName, color as Color)
-                }
-                logEvent(`Button ${buttonId} ${color === 'off' ? 'unhighlighted' : `highlighted with ${color}`}`)
+        // Click handler
+        button.addEventListener('click', () => {
+            if (currentMode !== 'click') return
+            handleColorActivation(buttonId, color)
+        })
+
+        // Hover handlers
+        button.addEventListener('mouseenter', () => {
+            if (currentMode !== 'hover') return
+            if (color !== 'off') {
+                handleColorActivation(buttonId, color)
             }
+        })
+
+        button.addEventListener('mouseleave', () => {
+            if (currentMode !== 'hover') return
+            handleColorActivation(buttonId, 'off')
         })
     })
 })
