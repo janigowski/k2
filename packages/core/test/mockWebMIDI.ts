@@ -7,6 +7,14 @@ class MIDIConnectionEvent extends Event {
     }
 }
 
+class MIDIMessageEvent extends Event {
+    data: Uint8Array;
+    constructor(type: string, eventInitDict: { data: Uint8Array }) {
+        super(type);
+        this.data = eventInitDict.data;
+    }
+}
+
 // test/mockWebMIDI.ts
 class MockMIDIInput extends EventTarget {
     id: string;
@@ -125,4 +133,4 @@ function createMockMIDIAccess(): MockMIDIAccess {
     return new MockMIDIAccess();
 }
 
-export { MockMIDIInput, MockMIDIOutput, MockMIDIAccess, createMockMIDIAccess };
+export { MIDIMessageEvent, MockMIDIInput, MockMIDIOutput, MockMIDIAccess, createMockMIDIAccess };
