@@ -16,8 +16,6 @@
     "@types/debug": "^4.1.12",
     "debug": "^4.4.0",
     "mitt": "^3.0.1",
-    "vitest": "^3.0.8",
-    "web-midi-test": "^1.2.8",
-    "webmidi": "^3.1.12"
+    "vitest": "^3.0.8"
   }
 }
