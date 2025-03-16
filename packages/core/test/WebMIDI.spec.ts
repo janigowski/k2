@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { MockMIDIAccess } from "./test/mockWebMIDI";
+import type { MockMIDIAccess } from "./mockWebMIDI";
 
 describe("WebMIDI Library with Multiple Devices", () => {
     it("should detect multiple MIDI inputs and outputs", async () => {
