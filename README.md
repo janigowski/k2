@@ -414,6 +414,15 @@ const dawMapping = createMappingLayer(k2, userMappings);
 // }
 ```
 
-## Hardware Layout 🎛️
+## 🎛️ Handling Latching Layers in K2  
 
-```
+### 🔹 This Tool Uses the Default Latching Layer  
+
+The Allen & Heath XONE:K2 features a **Latching Layers system**, allowing controls to send different MIDI messages depending on the active layer. However, configuring these layers requires **manual hardware setup** and **cannot be changed dynamically via software**.  
+
+To keep integration simple and seamless, **this tool operates using the default Latching Layer** set in the K2 hardware. Developers who need custom layer switching should handle it within their own applications.  
+
+### ✅ Summary  
+- **This tool operates using the default Latching Layer.**  
+- **Latching Layers cannot be changed dynamically via software.**  
+- **Developers are responsible for handling additional layers if needed.**  
