@@ -98,10 +98,21 @@ describe("K2", () => {
         // })
     })
 
-    it.skip('should highlight the given button', () => {
-        // const k2 = new K2(2)
-        // k2.highlightButton(1)
-        // expect(k2.isButtonHighlighted(1)).toBe(true)
+    it('should highlight the given button', async () => {
+        const midiAccess = testEnv.mockMIDIAccess;
+
+        midiAccess.addInput("input-2", "XONE:K2");
+        midiAccess.addOutput("output-2", "XONE:K2");
+
+        const k2 = new K2(2)
+        await k2.connect()
+
+        const output = midiAccess.outputs.get('output-2')
+        vi.spyOn(output, 'send')
+
+        k2.highlightButton('exit-setup', 'green')
+
+        expect(output?.send).toHaveBeenCalledWith([145, 23, 127])
     })
 
     it.skip('should unhighlight the given button', () => {

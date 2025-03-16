@@ -1,6 +1,6 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { buttons, type Button, type StrippedButton } from "./controlls";
+import { buttons, type Button, type StrippedButton, type Color, type ButtonName } from "./controlls";
 
 type ButtonEvents = {
     'button.press': StrippedButton;
@@ -19,8 +19,10 @@ export class K2 {
     private input?: WebMidi.MIDIInput
     private output?: WebMidi.MIDIOutput
 
+
     constructor(private channel: Channel) {
         this.emitter = mitt()
+
     }
 
     async connect(): Promise<void> {
@@ -78,5 +80,78 @@ export class K2 {
             name: button.name,
             midi: button.midi,
         }
+    }
+
+    highlightButton(name: ButtonName, color: Color) {
+        const button = buttons.find(b => b.name === name);
+        if (!button) {
+            console.error(`Button ${name} not found`);
+            return;
+        }
+
+        const channel = this.channel;
+        const statusByte = 0x90 + (channel - 1); // Note-On for Channel 2
+        const noteNumber = this.noteNameToMidi(button[color]);
+
+        if (noteNumber) {
+            console.log(`Debug - Button: ${name}, Color: ${color}`);
+            this.output?.send([statusByte, noteNumber, 127]);
+        } else {
+            console.error(`Invalid MIDI note for ${name} (${color})`);
+        }
+    }
+
+    /**
+     * Turns off the LED of a button.
+     */
+    unhighlightButton(name: ButtonName) {
+        const button = buttons.find(b => b.name === name);
+        if (!button) {
+            console.error(`Button ${name} not found`);
+            return;
+        }
+
+        const channel = this.channel;
+        const statusByte = 0x80 + (channel - 1); // Note-Off for Channel 2
+        const noteNumber = button.midi;
+
+        console.log(`Unhighlighting ${name} -> MIDI: [${statusByte}, ${noteNumber}, 0]`);
+        this.output?.send([statusByte, noteNumber, 0]);
+    }
+
+    /**
+     * Converts MIDI note names (e.g., "C2", "B0") into MIDI numbers (e.g., 35).
+     */
+    noteNameToMidi(note: string): number | null {
+        const noteMap: Record<string, number> = {
+            "C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5,
+            "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11
+        };
+
+        const match = note.match(/^([A-G]#?)(-?\d)$/);
+        if (!match) {
+            console.error(`Invalid MIDI note: ${note}`);
+            return null;
+        }
+
+        const [, notePart, octave] = match;
+        return (parseInt(octave) + 1) * 12 + noteMap[notePart];
+    }
+
+    /**
+     * Generates a mapping of MIDI note names to their corresponding note numbers.
+     */
+    private createMidiNoteMap(): Record<string, number> {
+        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const midiMap: Record<string, number> = {};
+
+        // MIDI note numbers for octave 0 start at 0 (C0)
+        for (let octave = 0; octave <= 9; octave++) {
+            noteNames.forEach((note, index) => {
+                const noteNumber = octave * 12 + index;
+                midiMap[`${note}${octave}`] = noteNumber;
+            });
+        }
+        return midiMap;
     }
 }   
