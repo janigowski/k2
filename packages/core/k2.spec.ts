@@ -1,26 +1,23 @@
-import { describe, expect, it, beforeEach, vi, beforeAll } from "vitest"
-import * as WMT from 'web-midi-test';
+import { describe, expect, it, beforeEach, vi, afterEach } from "vitest"
 
 import { K2 } from "./K2"
-
-class MIDIMessageEvent extends Event {
-    constructor(type: string, eventInitDict: { data: Uint8Array }) {
-        super(type);
-        this.data = eventInitDict.data;
-    }
-    data: Uint8Array;
-}
-
-let midiAccess: MIDIAccess;
-let controller: K2;
-let input: MIDIInput;
-let output: MIDIOutput;
+import type { MockMIDIAccess } from "./test/mockWebMIDI";
+import { createTestEnvironment } from "./test/setup";
 
 describe("K2", () => {
-    it('should connect to the device on the given channel', async () => {
-        const midiAccess = await navigator.requestMIDIAccess();
+    const testEnv = createTestEnvironment();
 
-        // Add extra devices
+    beforeEach(() => {
+        testEnv.useMockInTest();
+    });
+
+    afterEach(() => {
+        testEnv.restoreDefaultMock();
+    });
+
+    it('should connect to the device on the given channel', async () => {
+        const midiAccess = testEnv.mockMIDIAccess;
+
         midiAccess.addInput("input-2", "XONE:K2");
         midiAccess.addOutput("output-2", "XONE:K2");
 
@@ -35,7 +32,12 @@ describe("K2", () => {
         expect(handler).toHaveBeenCalled()
     })
 
-    it.skip('notify about button press', async () => {
+    it('notify about button press', async () => {
+        const midiAccess = testEnv.mockMIDIAccess;
+
+        midiAccess.addInput("input-2", "XONE:K2");
+        midiAccess.addOutput("output-2", "XONE:K2");
+
         const k2 = new K2(2)
 
         const handler = vi.fn()
@@ -44,11 +46,14 @@ describe("K2", () => {
         await k2.connect()
         k2.attachEvents()
 
+        const input = Array.from(midiAccess.inputs.values())
+            .find(input => input.name === "XONE:K2");
 
-        // const input = Array.from(inputs.values())[0]
-        // input.dispatchEvent(new MIDIMessageEvent('midimessage', {
-        //     data: new Uint8Array([144, 23, 127])
-        // }))
+        if (!input) {
+            throw new Error("XONE:K2 input not found");
+        }
+
+        (input as any).receiveMIDIMessage([144, 23, 127]);
 
         expect(handler).toHaveBeenCalled()
     })
