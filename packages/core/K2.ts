@@ -15,8 +15,8 @@ type EventNames = keyof Events
 
 export class K2 {
     private emitter: Emitter<Events>
-    private inputChannel: any; // Using any temporarily to fix the linter error
-    private outputChannel: any; // Using any temporarily to fix the linter error
+    private input?: WebMidi.MIDIInput
+    private output?: WebMidi.MIDIOutput
 
     constructor(private channel: Channel) {
         this.emitter = mitt()
@@ -25,33 +25,18 @@ export class K2 {
     async connect(): Promise<void> {
         try {
             const midiAccess = await navigator.requestMIDIAccess()
-
             const input = Array.from(midiAccess.inputs.values()).find(item => item.name === 'XONE:K2')
             const output = Array.from(midiAccess.outputs.values()).find(item => item.name === 'XONE:K2')
 
-            console.log({ input, output, inputs: Array.from(midiAccess.inputs.values()), outputs: Array.from(midiAccess.outputs.values()) })
-
             if (input && output) {
-                this.inputChannel = input;
-                this.outputChannel = output;
+                this.input = input;
+                this.output = output;
+                this.attachEvents()
                 this.emitter.emit('connect')
+            } else {
+                this.emitter.emit('connectionError', new Error(`XONE:K2 not found`))
             }
 
-
-            // if (input && output) {
-
-
-            //     if (this.inputChannel && this.outputChannel) {
-
-            //         this.attachEvents()
-            //     } else {
-            //         console.log(`XONE:K2 Channel ${this.channel} not found`)
-            //         this.emitter.emit('connectionError', new Error(`XONE:K2 Channel ${this.channel} not found`))
-            //     }
-            // } else {
-            //     console.log(`XONE:K2 not found on channel ${this.channel}`)
-            //     this.emitter.emit('connectionError', new Error(`XONE:K2 not found on channel ${this.channel}`))
-            // }
         } catch (error) {
             console.log('Error connecting to K2', error)
             this.emitter.emit('connectionError', error)
@@ -65,16 +50,24 @@ export class K2 {
     attachEvents() {
         console.log('attaching events')
 
-        if (this.inputChannel) {
-            this.inputChannel.addListener('noteon', (e: { note: { number: number } }) => {
-                console.log('noteon', e)
+        if (this.input) {
+            this.input.addEventListener('midimessage', (e) => {
+                // console.log('noteon', e, JSON.stringify(e.data))
 
-                const button = buttons.find(b => b.midi === e.note.number);
+                const button = buttons.find(b => b.midi === e.data[1]);
 
                 if (button) {
-                    const eventName = button.name + '.press' as keyof Events
+                    if (e.data[2] === 127) {
+                        const eventName = button.name + '.press' as keyof Events
 
-                    this.emitter.emit(eventName, button);
+                        this.emitter.emit(eventName, button);
+                    }
+
+                    if (e.data[2] === 0) {
+                        const eventName = button.name + '.release' as keyof Events
+
+                        this.emitter.emit(eventName, button);
+                    }
                 }
             })
         }
