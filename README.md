@@ -35,10 +35,6 @@ The installation instructions and examples in this README represent the planned 
 - 🎹 Support for all K2 controls and LEDs
 - 🔌 Built on top of WebMIDI API
 
-## Dependencies
-
-- [webmidi](https://github.com/djipco/webmidi) - For MIDI device communication
-
 ## Roadmap 🗺️
 
 ### Current Features
