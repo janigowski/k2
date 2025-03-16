@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K2 VanillaJS Example</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .events {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            min-height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>K2 VanillaJS Example</h1>
+    <div id="status" class="status disconnected">Disconnected</div>
+    <button id="connect">Connect K2</button>
+    <h2>Events</h2>
+    <div id="events" class="events"></div>
+
+    <script type="module" src="./app.js"></script>
+</body>
+
+</html>
