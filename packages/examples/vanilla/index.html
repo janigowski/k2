@@ -8,9 +8,11 @@
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            background: #1a1a1a;
+            color: #fff;
         }
 
         .status {
@@ -34,6 +36,89 @@
             padding: 1rem;
             border-radius: 4px;
             min-height: 200px;
+            color: #000;
+        }
+
+        .k2-controller {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 2rem auto;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .row-label {
+            font-size: 24px;
+            font-weight: bold;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .button-label {
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .color-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+        }
+
+        .color-button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            opacity: 0.7;
+        }
+
+        .color-button:hover {
+            opacity: 0.9;
+        }
+
+        .color-button.active {
+            opacity: 1;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .color-button.green {
+            background: #00ff00;
+        }
+
+        .color-button.amber {
+            background: #ffbf00;
+        }
+
+        .color-button.red {
+            background: #ff0000;
+        }
+
+        .color-button.off {
+            background: #666;
+        }
+
+        .special-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
         }
     </style>
 </head>
@@ -42,10 +127,194 @@
     <h1>K2 VanillaJS Example</h1>
     <div id="status" class="status disconnected">Disconnected</div>
     <button id="connect">Connect K2</button>
+
+    <div class="k2-controller">
+        <div class="row">
+            <div class="row-label">A</div>
+            <div class="button-group">
+                <span class="button-label">A</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="A" data-color="red"></button>
+                    <button class="color-button amber" data-button="A" data-color="amber"></button>
+                    <button class="color-button green" data-button="A" data-color="green"></button>
+                    <button class="color-button off" data-button="A" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">B</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="B" data-color="red"></button>
+                    <button class="color-button amber" data-button="B" data-color="amber"></button>
+                    <button class="color-button green" data-button="B" data-color="green"></button>
+                    <button class="color-button off" data-button="B" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">C</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="C" data-color="red"></button>
+                    <button class="color-button amber" data-button="C" data-color="amber"></button>
+                    <button class="color-button green" data-button="C" data-color="green"></button>
+                    <button class="color-button off" data-button="C" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">D</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="D" data-color="red"></button>
+                    <button class="color-button amber" data-button="D" data-color="amber"></button>
+                    <button class="color-button green" data-button="D" data-color="green"></button>
+                    <button class="color-button off" data-button="D" data-color="off"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-label">B</div>
+            <div class="button-group">
+                <span class="button-label">E</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="E" data-color="red"></button>
+                    <button class="color-button amber" data-button="E" data-color="amber"></button>
+                    <button class="color-button green" data-button="E" data-color="green"></button>
+                    <button class="color-button off" data-button="E" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">F</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="F" data-color="red"></button>
+                    <button class="color-button amber" data-button="F" data-color="amber"></button>
+                    <button class="color-button green" data-button="F" data-color="green"></button>
+                    <button class="color-button off" data-button="F" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">G</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="G" data-color="red"></button>
+                    <button class="color-button amber" data-button="G" data-color="amber"></button>
+                    <button class="color-button green" data-button="G" data-color="green"></button>
+                    <button class="color-button off" data-button="G" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">H</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="H" data-color="red"></button>
+                    <button class="color-button amber" data-button="H" data-color="amber"></button>
+                    <button class="color-button green" data-button="H" data-color="green"></button>
+                    <button class="color-button off" data-button="H" data-color="off"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-label">C</div>
+            <div class="button-group">
+                <span class="button-label">I</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="I" data-color="red"></button>
+                    <button class="color-button amber" data-button="I" data-color="amber"></button>
+                    <button class="color-button green" data-button="I" data-color="green"></button>
+                    <button class="color-button off" data-button="I" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">J</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="J" data-color="red"></button>
+                    <button class="color-button amber" data-button="J" data-color="amber"></button>
+                    <button class="color-button green" data-button="J" data-color="green"></button>
+                    <button class="color-button off" data-button="J" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">K</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="K" data-color="red"></button>
+                    <button class="color-button amber" data-button="K" data-color="amber"></button>
+                    <button class="color-button green" data-button="K" data-color="green"></button>
+                    <button class="color-button off" data-button="K" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">L</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="L" data-color="red"></button>
+                    <button class="color-button amber" data-button="L" data-color="amber"></button>
+                    <button class="color-button green" data-button="L" data-color="green"></button>
+                    <button class="color-button off" data-button="L" data-color="off"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-label">D</div>
+            <div class="button-group">
+                <span class="button-label">M</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="M" data-color="red"></button>
+                    <button class="color-button amber" data-button="M" data-color="amber"></button>
+                    <button class="color-button green" data-button="M" data-color="green"></button>
+                    <button class="color-button off" data-button="M" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">N</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="N" data-color="red"></button>
+                    <button class="color-button amber" data-button="N" data-color="amber"></button>
+                    <button class="color-button green" data-button="N" data-color="green"></button>
+                    <button class="color-button off" data-button="N" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">O</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="O" data-color="red"></button>
+                    <button class="color-button amber" data-button="O" data-color="amber"></button>
+                    <button class="color-button green" data-button="O" data-color="green"></button>
+                    <button class="color-button off" data-button="O" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">P</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="P" data-color="red"></button>
+                    <button class="color-button amber" data-button="P" data-color="amber"></button>
+                    <button class="color-button green" data-button="P" data-color="green"></button>
+                    <button class="color-button off" data-button="P" data-color="off"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="special-buttons">
+            <div class="button-group">
+                <span class="button-label">Layer</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="layer" data-color="red"></button>
+                    <button class="color-button amber" data-button="layer" data-color="amber"></button>
+                    <button class="color-button green" data-button="layer" data-color="green"></button>
+                    <button class="color-button off" data-button="layer" data-color="off"></button>
+                </div>
+            </div>
+            <div class="button-group">
+                <span class="button-label">Exit Setup</span>
+                <div class="color-controls">
+                    <button class="color-button red" data-button="exit-setup" data-color="red"></button>
+                    <button class="color-button amber" data-button="exit-setup" data-color="amber"></button>
+                    <button class="color-button green" data-button="exit-setup" data-color="green"></button>
+                    <button class="color-button off" data-button="exit-setup" data-color="off"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h2>Events</h2>
     <div id="events" class="events"></div>
 
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="./app.ts"></script>
 </body>
 
 </html>
