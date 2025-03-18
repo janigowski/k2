@@ -55,8 +55,6 @@ export class K2 {
 
         if (this.input) {
             this.input.addEventListener('midimessage', (e) => {
-                console.log('midimessage', e, JSON.stringify(e.data))
-
                 const button = buttons.find(b => b.midi === e.data[1]);
 
                 if (button) {
@@ -90,11 +88,10 @@ export class K2 {
         }
 
         const channel = this.channel;
-        const statusByte = 0x90 + (channel - 1); // Note-On for Channel 2
+        const statusByte = 0x90 + (channel - 1);
         const noteNumber = this.noteNameToMidi(button[color]);
 
         if (noteNumber) {
-            console.log(`Debug - Button: ${name}, Color: ${color}`);
             this.output?.send([statusByte, noteNumber, 127]);
         } else {
             console.error(`Invalid MIDI note for ${name} (${color})`);

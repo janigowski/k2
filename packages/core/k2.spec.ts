@@ -78,6 +78,29 @@ describe("K2", () => {
         )
     })
 
+    it('notify about fader change', async () => {
+        const midiAccess = testEnv.mockMIDIAccess;
+
+        midiAccess.addInput("input-2", "XONE:K2");
+        midiAccess.addOutput("output-2", "XONE:K2");
+
+        const k2 = new K2(2)
+        await k2.connect()
+
+        const handler = vi.fn()
+        k2.on('fader.change', handler)
+
+        const input = midiAccess.inputs.get('input-2')
+        input?.receiveMIDIMessage([144, 15, 127])
+
+        expect(handler).toHaveBeenCalledWith(
+            {
+                name: 'fader-1',
+                midi: 127,
+            }
+        )
+    })
+
     it.skip('should return all buttons', () => {
         // const k2 = new K2(2)
         // const buttons = k2.getButtons()
@@ -112,7 +135,7 @@ describe("K2", () => {
 
         k2.highlightButton('exit-setup', 'green')
 
-        expect(output?.send).toHaveBeenCalledWith([145, 23, 127])
+        expect(output?.send).toHaveBeenCalledWith([177, 16, 127])
     })
 
     it.skip('should unhighlight the given button', () => {
