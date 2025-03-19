@@ -74,25 +74,24 @@ describe("K2", () => {
         )
     })
 
-    it.skip('notify about fader change', async () => {
-        const midiAccess = testEnv.mockMIDIAccess;
+    it('notify about fader change', async () => {
+        const channel = 2
+        const provider = new FakeMIDIProvider()
+        const input = new FakeMIDIInput("input-2")
+        provider.setInput({ name: "XONE:K2", channel }, input)
 
-        midiAccess.addInput("input-2", "XONE:K2");
-        midiAccess.addOutput("output-2", "XONE:K2");
-
-        const k2 = new K2(2)
+        const k2 = new K2(channel, provider)
         await k2.connect()
 
         const handler = vi.fn()
         k2.on('fader.change', handler)
 
-        const input = midiAccess.inputs.get('input-2')
-        input?.receiveMIDIMessage([144, 15, 127])
+        input.emit('control.change', { cc: 16, value: 64 })
 
         expect(handler).toHaveBeenCalledWith(
             {
                 name: 'fader-1',
-                midi: 127,
+                value: 64 / 127,
             }
         )
     })

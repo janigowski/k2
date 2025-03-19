@@ -1,4 +1,4 @@
-import mitt from "mitt";
+import mitt, { type Emitter } from "mitt";
 import type { MIDIInput, MIDIOutput, MIDIProvider, MIDIIdentifierOptions, MIDIEventName, MIDIEventTypes } from "./interfaces/MIDIProvider";
 
 export class FakeMIDIProvider implements MIDIProvider {
@@ -45,8 +45,10 @@ export class FakeMIDIProvider implements MIDIProvider {
 
 export class FakeMIDIInput implements MIDIInput {
     private channel: number = 0
+    private emitter: Emitter<MIDIEventTypes>
 
     constructor(public name: string) {
+        this.emitter = mitt()
     }
 
     setChannel(channel: number): void {
@@ -54,6 +56,14 @@ export class FakeMIDIInput implements MIDIInput {
     }
 
     on<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void {
-        console.log('on', event, callback)
+        this.emitter.on(event, callback)
+    }
+
+    off<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void {
+        this.emitter.off(event, callback)
+    }
+
+    emit<T extends MIDIEventName>(event: T, data: MIDIEventTypes[T]): void {
+        this.emitter.emit(event, data)
     }
 }

@@ -16,7 +16,7 @@ export type MIDIEventTypes = {
     "note.off": { note: number; velocity: number };
 
     // 🎛️ Control Change (CC) Events
-    "control.change": { controller: number; value: number };
+    "control.change": { cc: number; value: number };
 
     // 🎵 Program Change Events
     "program.change": { program: number };

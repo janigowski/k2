@@ -1,10 +1,11 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { buttons, type Button, type StrippedButton, type Color, type ButtonName } from "./controlls";
+import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders } from "./controlls";
 import type { MIDIInput, MIDIProvider } from "./interfaces/MIDIProvider";
 type ButtonEvents = {
     'button.press': StrippedButton;
     'button.release': StrippedButton;
+    'fader.change': { name: string, value: number };
 };
 
 type Events = {
@@ -21,7 +22,7 @@ export class K2 {
     private inputNew?: MIDIInput
 
 
-    constructor(private channel: Channel, public provider?: MIDIProvider) {
+    constructor(private channel: Channel, public provider: MIDIProvider) {
         this.emitter = mitt()
 
     }
@@ -74,6 +75,16 @@ export class K2 {
                     if (velocity === 0) {
                         this.emitter.emit('button.release', strippedButton);
                     }
+                }
+            })
+
+            this.inputNew.on('control.change', ({ cc, value }) => {
+                const fader = faders.find(f => f.cc === cc);
+                const maxValue = 127
+                const valueNormalized = value / maxValue
+
+                if (fader) {
+                    this.emitter.emit('fader.change', { name: fader.name, value: valueNormalized });
                 }
             })
         }

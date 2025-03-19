@@ -199,3 +199,26 @@ export const controlls: Controll[] = [
     },
 ];
 
+export type Fader = {
+    name: string;
+    cc: number;
+};
+
+export const faders: Fader[] = [
+    {
+        name: "fader-1",
+        cc: 16,
+    },
+    {
+        name: "fader-2",
+        cc: 17,
+    },
+    {
+        name: "fader-3",
+        cc: 18,
+    },
+    {
+        name: "fader-4",
+        cc: 19,
+    },
+];
