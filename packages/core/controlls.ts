@@ -1,4 +1,3 @@
-export type ControllName = "forthKnob" | "leftKnob" | "rightKnob";
 export type ButtonName =
     | "A"
     | "B"
@@ -18,7 +17,6 @@ export type ButtonName =
     | "P"
     | "layer"
     | "exit-setup"
-    | ControllName;
 
 export type Button = {
     name: ButtonName;
@@ -31,11 +29,6 @@ export type Button = {
 export type StrippedButton = {
     name: ButtonName;
     midi: number;
-};
-
-export type Controll = {
-    name: ControllName;
-    id: number;
 };
 
 const colors = ["red", "amber", "green"] as const;
@@ -162,20 +155,6 @@ export const buttons: Button[] = [
         green: "G#0",
     },
     {
-        name: "leftKnob",
-        midi: 13,
-        red: "",
-        amber: "",
-        green: "",
-    },
-    {
-        name: "rightKnob",
-        midi: 14,
-        red: "",
-        amber: "",
-        green: "",
-    },
-    {
         name: "exit-setup",
         midi: 15,
         red: "D#0",
@@ -184,19 +163,60 @@ export const buttons: Button[] = [
     },
 ];
 
-export const controlls: Controll[] = [
+export type Knob = {
+    name: 'knob-1' | 'knob-2' | 'knob-3' | 'knob-4' | 'knob-5' | 'knob-6' | 'knob-7' | 'knob-8' | 'knob-9' | 'knob-10' | 'knob-11' | 'knob-12'
+    cc: number;
+};
+
+export const knobs: Knob[] = [
     {
-        name: "leftKnob",
-        id: 20,
+        name: "knob-1",
+        cc: 4,
     },
     {
-        name: "rightKnob",
-        id: 21,
+        name: "knob-2",
+        cc: 5,
     },
     {
-        name: "forthKnob",
-        id: 3,
+        name: "knob-3",
+        cc: 6,
     },
+    {
+        name: "knob-4",
+        cc: 7,
+    },
+    {
+        name: "knob-5",
+        cc: 8,
+    },
+    {
+        name: "knob-6",
+        cc: 9,
+    },
+    {
+        name: "knob-7",
+        cc: 10,
+    },
+    {
+        name: "knob-8",
+        cc: 11,
+    },
+    {
+        name: "knob-9",
+        cc: 12,
+    },
+    {
+        name: "knob-10",
+        cc: 13,
+    },
+    {
+        name: "knob-11",
+        cc: 14,
+    },
+    {
+        name: "knob-12",
+        cc: 15,
+    }
 ];
 
 export type Fader = {
@@ -222,3 +242,5 @@ export const faders: Fader[] = [
         cc: 19,
     },
 ];
+
+export const controls = [...knobs, ...faders] as const;

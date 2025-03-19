@@ -1,11 +1,12 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders } from "./controlls";
+import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders, controls } from "./controlls";
 import type { MIDIInput, MIDIProvider } from "./interfaces/MIDIProvider";
 type ButtonEvents = {
     'button.press': StrippedButton;
     'button.release': StrippedButton;
     'fader.change': { name: string, value: number };
+    'knob.change': { name: string, value: number };
 };
 
 type Events = {
@@ -79,12 +80,16 @@ export class K2 {
             })
 
             this.inputNew.on('control.change', ({ cc, value }) => {
-                const fader = faders.find(f => f.cc === cc);
+                const control = controls.find(c => c.cc === cc);
                 const maxValue = 127
                 const valueNormalized = value / maxValue
 
-                if (fader) {
-                    this.emitter.emit('fader.change', { name: fader.name, value: valueNormalized });
+                if (control?.name.includes('fader')) {
+                    this.emitter.emit('fader.change', { name: control.name, value: valueNormalized });
+                }
+
+                if (control?.name.includes('knob')) {
+                    this.emitter.emit('knob.change', { name: control.name, value: valueNormalized });
                 }
             })
         }

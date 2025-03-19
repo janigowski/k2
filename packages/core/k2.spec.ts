@@ -102,18 +102,26 @@ describe("K2", () => {
         // expect(buttons).toBeDefined()
     })
 
-    it.skip('should notify about fader change', () => {
-        // const k2 = new K2(2)
-        // k2.on('faderChange', (fader) => {
-        //     expect(fader).toBe(1)
-        // })
-    })
+    it('should notify about knob change', async () => {
+        const channel = 2
+        const provider = new FakeMIDIProvider()
+        const input = new FakeMIDIInput("input-2")
+        provider.setInput({ name: "XONE:K2", channel }, input)
 
-    it.skip('should notify about knob change', () => {
-        // const k2 = new K2(2)
-        // k2.on('knobChange', (knob) => {
-        //     expect(knob).toBe(1)
-        // })
+        const k2 = new K2(channel, provider)
+        await k2.connect()
+
+        const handler = vi.fn()
+        k2.on('knob.change', handler)
+
+        input.emit('control.change', { cc: 10, value: 20 })
+
+        expect(handler).toHaveBeenCalledWith(
+            {
+                name: 'knob-7',
+                value: 20 / 127,
+            }
+        )
     })
 
     it.skip('should highlight the given button', async () => {
