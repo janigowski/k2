@@ -51,6 +51,8 @@ export interface MIDIInput {
 
     setChannel(channel: number): void
     on<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void
+
+    off<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void
 }
 
 export interface MIDIOutput {
