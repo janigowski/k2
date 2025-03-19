@@ -31,19 +31,18 @@ describe("K2", () => {
     })
 
     it('notify about button press', async () => {
-        const midiAccess = testEnv.mockMIDIAccess;
+        const channel = 2
+        const provider = new FakeMIDIProvider()
+        const input = new FakeMIDIInput("input-2")
+        provider.setInput({ name: "XONE:K2", channel }, input)
 
-        midiAccess.addInput("input-2", "XONE:K2");
-        midiAccess.addOutput("output-2", "XONE:K2");
-
-        const k2 = new K2(2)
+        const k2 = new K2(channel, provider)
         await k2.connect()
 
         const handler = vi.fn()
         k2.on('button.press', handler)
 
-        const input = midiAccess.inputs.get('input-2')
-        input?.receiveMIDIMessage([144, 15, 127])
+        input.emit('note.on', { note: 15, velocity: 127 })
 
         expect(handler).toHaveBeenCalledWith(
             {

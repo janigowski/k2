@@ -60,8 +60,21 @@ export class K2 {
 
     attachEventsNew() {
         if (this.inputNew) {
-            this.inputNew.on('note.on', (e) => {
-                console.log('note.on', e)
+
+            this.inputNew.on('note.on', ({ note, velocity }) => {
+                const button = buttons.find(b => b.midi === note);
+
+                if (button) {
+                    const strippedButton = this.stripButton(button)
+
+                    if (velocity === 127) {
+                        this.emitter.emit('button.press', strippedButton);
+                    }
+
+                    if (velocity === 0) {
+                        this.emitter.emit('button.release', strippedButton);
+                    }
+                }
             })
         }
     }
