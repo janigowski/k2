@@ -124,6 +124,28 @@ describe("K2", () => {
         )
     })
 
+    it('should notify about encoder rotation', async () => {
+        const channel = 2
+        const provider = new FakeMIDIProvider()
+        const input = new FakeMIDIInput("input-2")
+        provider.setInput({ name: "XONE:K2", channel }, input)
+
+        const k2 = new K2(channel, provider)
+        await k2.connect()
+
+        const handler = vi.fn()
+        k2.on('encoder.turn', handler)
+
+        input.emit('control.change', { cc: 0, value: 127 })
+
+        expect(handler).toHaveBeenCalledWith(
+            {
+                name: 'encoder-1',
+                value: 1,
+            }
+        )
+    })
+
     it.skip('should highlight the given button', async () => {
         const midiAccess = testEnv.mockMIDIAccess;
 

@@ -7,6 +7,7 @@ type ButtonEvents = {
     'button.release': StrippedButton;
     'fader.change': { name: string, value: number };
     'knob.change': { name: string, value: number };
+    'encoder.turn': { name: string, value: -1 | 1 };
 };
 
 type Events = {
@@ -82,14 +83,18 @@ export class K2 {
             this.inputNew.on('control.change', ({ cc, value }) => {
                 const control = controls.find(c => c.cc === cc);
                 const maxValue = 127
-                const valueNormalized = value / maxValue
+
 
                 if (control?.name.includes('fader')) {
-                    this.emitter.emit('fader.change', { name: control.name, value: valueNormalized });
+                    this.emitter.emit('fader.change', { name: control.name, value: value / maxValue });
                 }
 
                 if (control?.name.includes('knob')) {
-                    this.emitter.emit('knob.change', { name: control.name, value: valueNormalized });
+                    this.emitter.emit('knob.change', { name: control.name, value: value / maxValue });
+                }
+
+                if (control?.name.includes('encoder')) {
+                    this.emitter.emit('encoder.turn', { name: control.name, value: value === maxValue ? 1 : -1 });
                 }
             })
         }

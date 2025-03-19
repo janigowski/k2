@@ -17,6 +17,12 @@ export type ButtonName =
     | "P"
     | "layer"
     | "exit-setup"
+    | "encoder-1"
+    | "encoder-2"
+    | "encoder-3"
+    | "encoder-4"
+    | "encoder-5"
+    | "encoder-6"
 
 export type Button = {
     name: ButtonName;
@@ -161,6 +167,54 @@ export const buttons: Button[] = [
         amber: "G0",
         green: "B0",
     },
+    {
+        name: "encoder-1",
+        // E3 @TODO: Translate MIDI Notes to Decimal
+        midi: 0,
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-2",
+        // F3
+        midi: 0,
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-3",
+        // F#3
+        midi: 0,
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-4",
+        // G3
+        midi: 0,
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-5",
+        // C#0
+        midi: 0,
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-6",
+        // D0
+        midi: 0,
+        red: "",
+        amber: "",
+        green: "",
+    },
 ];
 
 export type Knob = {
@@ -243,4 +297,36 @@ export const faders: Fader[] = [
     },
 ];
 
-export const controls = [...knobs, ...faders] as const;
+export type Encoder = {
+    name: string;
+    cc: number;
+};
+
+export const encoders: Encoder[] = [
+    {
+        name: "encoder-1",
+        cc: 0,
+    },
+    {
+        name: "encoder-2",
+        cc: 1,
+    },
+    {
+        name: "encoder-3",
+        cc: 2,
+    },
+    {
+        name: "encoder-4",
+        cc: 3,
+    },
+    {
+        name: "encoder-5",
+        cc: 20,
+    },
+    {
+        name: "encoder-6",
+        cc: 21,
+    },
+];
+
+export const controls = [...knobs, ...faders, ...encoders] as const;
