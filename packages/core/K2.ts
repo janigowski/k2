@@ -1,7 +1,7 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
 import { buttons, type Button, type StrippedButton, type Color, type ButtonName } from "./controlls";
-
+import type { MIDIInput, MIDIProvider } from "./interfaces/MIDIProvider";
 type ButtonEvents = {
     'button.press': StrippedButton;
     'button.release': StrippedButton;
@@ -18,9 +18,10 @@ export class K2 {
     private emitter: Emitter<Events>
     private input?: WebMidi.MIDIInput
     private output?: WebMidi.MIDIOutput
+    private inputNew?: MIDIInput
 
 
-    constructor(private channel: Channel) {
+    constructor(private channel: Channel, public provider?: MIDIProvider) {
         this.emitter = mitt()
 
     }
@@ -31,15 +32,22 @@ export class K2 {
             const input = Array.from(midiAccess.inputs.values()).find(item => item.name === 'XONE:K2')
             const output = Array.from(midiAccess.outputs.values()).find(item => item.name === 'XONE:K2')
 
-            if (input && output) {
-                this.input = input;
-                this.output = output;
-                this.attachEvents()
+            const inputNew = this.provider?.getInput({ name: 'XONE:K2', channel: this.channel })
+
+            if (inputNew) {
+                this.inputNew = inputNew
+                this.attachEventsNew()
                 this.emitter.emit('connect')
             } else {
-                this.emitter.emit('connectionError', new Error(`XONE:K2 not found`))
+                if (input && output) {
+                    this.input = input;
+                    this.output = output;
+                    this.attachEvents()
+                    this.emitter.emit('connect')
+                } else {
+                    this.emitter.emit('connectionError', new Error(`XONE:K2 not found`))
+                }
             }
-
         } catch (error) {
             console.log('Error connecting to K2', error)
             this.emitter.emit('connectionError', error)
@@ -48,6 +56,14 @@ export class K2 {
 
     on<T extends EventNames>(event: T, callback: Handler<Events[T]>): void {
         this.emitter.on(event, callback)
+    }
+
+    attachEventsNew() {
+        if (this.inputNew) {
+            this.inputNew.on('note.on', (e) => {
+                console.log('note.on', e)
+            })
+        }
     }
 
     attachEvents() {
