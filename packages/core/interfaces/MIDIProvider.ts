@@ -50,13 +50,17 @@ export interface MIDIInput {
     name: string
 
     setChannel(channel: number): void
-    on<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void
 
+    on<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void
     off<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void
 }
 
 export interface MIDIOutput {
     name: string
+
     setChannel(channel: number): void
-    send(data: Uint8Array): void
+
+    send(data: number[]): void
+    sendNoteOn(note: string, velocity: number): void
+    sendNoteOff(note: string): void
 }

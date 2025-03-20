@@ -67,3 +67,26 @@ export class FakeMIDIInput implements MIDIInput {
         this.emitter.emit(event, data)
     }
 }
+
+export class FakeMIDIOutput implements MIDIOutput {
+    private channel: number = 0
+
+    constructor(public name: string) {
+    }
+
+    setChannel(channel: number): void {
+        this.channel = channel
+    }
+
+    send(data: number[]): void {
+        console.log('send', data)
+    }
+
+    sendNoteOn(note: string, velocity: number): void {
+        console.log('sendNoteOn', note, velocity)
+    }
+
+    sendNoteOff(note: string): void {
+        console.log('sendNoteOff', note)
+    }
+}

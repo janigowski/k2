@@ -3,7 +3,7 @@ import { describe, expect, it, beforeEach, vi, afterEach } from "vitest"
 import { K2 } from "./K2"
 import type { MockMIDIAccess } from "./test/mockWebMIDI";
 import { createTestEnvironment } from "./test/setup";
-import { FakeMIDIInput, FakeMIDIProvider } from "./FakeMIDIProvider";
+import { FakeMIDIInput, FakeMIDIOutput, FakeMIDIProvider } from "./FakeMIDIProvider";
 describe("K2", () => {
     const testEnv = createTestEnvironment();
 
@@ -146,21 +146,24 @@ describe("K2", () => {
         )
     })
 
-    it.skip('should highlight the given button', async () => {
-        const midiAccess = testEnv.mockMIDIAccess;
+    it('should highlight the given button', async () => {
+        const channel = 2
+        const provider = new FakeMIDIProvider()
+        const output = new FakeMIDIOutput("output-2")
+        provider.setOutput({ name: "XONE:K2", channel }, output)
 
-        midiAccess.addInput("input-2", "XONE:K2");
-        midiAccess.addOutput("output-2", "XONE:K2");
-
-        const k2 = new K2(2)
+        const k2 = new K2(channel, provider)
         await k2.connect()
 
-        const output = midiAccess.outputs.get('output-2')
-        vi.spyOn(output, 'send')
+        vi.spyOn(output, 'sendNoteOn')
+
+        // green:B0
+        // midi: 15
 
         k2.highlightButton('exit-setup', 'green')
 
-        expect(output?.send).toHaveBeenCalledWith([177, 16, 127])
+        expect(output.sendNoteOn).toHaveBeenCalledWith('B0', 127)
+        // expect(output?.send).toHaveBeenCalledWith([177, 16, 127])
     })
 
     it.skip('should unhighlight the given button', () => {

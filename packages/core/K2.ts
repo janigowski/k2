@@ -1,7 +1,7 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
 import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders, controls } from "./controlls";
-import type { MIDIInput, MIDIProvider } from "./interfaces/MIDIProvider";
+import type { MIDIInput, MIDIOutput, MIDIProvider } from "./interfaces/MIDIProvider";
 type ButtonEvents = {
     'button.press': StrippedButton;
     'button.release': StrippedButton;
@@ -19,10 +19,8 @@ type EventNames = keyof Events
 
 export class K2 {
     private emitter: Emitter<Events>
-    private input?: WebMidi.MIDIInput
-    private output?: WebMidi.MIDIOutput
-    private inputNew?: MIDIInput
-
+    private input?: MIDIInput
+    private output?: MIDIOutput
 
     constructor(private channel: Channel, public provider: MIDIProvider) {
         this.emitter = mitt()
@@ -31,25 +29,17 @@ export class K2 {
 
     async connect(): Promise<void> {
         try {
-            const midiAccess = await navigator.requestMIDIAccess()
-            const input = Array.from(midiAccess.inputs.values()).find(item => item.name === 'XONE:K2')
-            const output = Array.from(midiAccess.outputs.values()).find(item => item.name === 'XONE:K2')
+            const input = this.provider?.getInput({ name: 'XONE:K2', channel: this.channel })
+            const output = this.provider?.getOutput({ name: 'XONE:K2', channel: this.channel })
 
-            const inputNew = this.provider?.getInput({ name: 'XONE:K2', channel: this.channel })
-
-            if (inputNew) {
-                this.inputNew = inputNew
-                this.attachEventsNew()
+            if (input) {
+                this.input = input
+                this.attachInputEvents()
                 this.emitter.emit('connect')
-            } else {
-                if (input && output) {
-                    this.input = input;
-                    this.output = output;
-                    this.attachEvents()
-                    this.emitter.emit('connect')
-                } else {
-                    this.emitter.emit('connectionError', new Error(`XONE:K2 not found`))
-                }
+            }
+
+            if (output) {
+                this.output = output
             }
         } catch (error) {
             console.log('Error connecting to K2', error)
@@ -61,10 +51,10 @@ export class K2 {
         this.emitter.on(event, callback)
     }
 
-    attachEventsNew() {
-        if (this.inputNew) {
+    private attachInputEvents() {
+        if (this.input) {
 
-            this.inputNew.on('note.on', ({ note, velocity }) => {
+            this.input.on('note.on', ({ note, velocity }) => {
                 const button = buttons.find(b => b.midi === note);
 
                 if (button) {
@@ -80,7 +70,7 @@ export class K2 {
                 }
             })
 
-            this.inputNew.on('control.change', ({ cc, value }) => {
+            this.input.on('control.change', ({ cc, value }) => {
                 const control = controls.find(c => c.cc === cc);
                 const maxValue = 127
 
@@ -100,29 +90,6 @@ export class K2 {
         }
     }
 
-    attachEvents() {
-        console.log('attaching events')
-
-        if (this.input) {
-            this.input.addEventListener('midimessage', (e) => {
-                const button = buttons.find(b => b.midi === e.data[1]);
-
-                if (button) {
-                    const strippedButton = this.stripButton(button)
-                    this.emitter.emit('button.press', strippedButton)
-
-                    if (e.data[2] === 127) {
-                        this.emitter.emit('button.press', strippedButton);
-                    }
-
-                    if (e.data[2] === 0) {
-                        this.emitter.emit('button.release', strippedButton);
-                    }
-                }
-            })
-        }
-    }
-
     private stripButton(button: Button) {
         return {
             name: button.name,
@@ -132,20 +99,14 @@ export class K2 {
 
     highlightButton(name: ButtonName, color: Color) {
         const button = buttons.find(b => b.name === name);
+
         if (!button) {
             console.error(`Button ${name} not found`);
             return;
         }
 
-        const channel = this.channel;
-        const statusByte = 0x90 + (channel - 1);
-        const noteNumber = this.noteNameToMidi(button[color]);
-
-        if (noteNumber) {
-            this.output?.send([statusByte, noteNumber, 127]);
-        } else {
-            console.error(`Invalid MIDI note for ${name} (${color})`);
-        }
+        const maxVelocity = 127
+        this.output?.sendNoteOn(button[color], maxVelocity);
     }
 
     /**
@@ -153,17 +114,14 @@ export class K2 {
      */
     unhighlightButton(name: ButtonName) {
         const button = buttons.find(b => b.name === name);
+
         if (!button) {
             console.error(`Button ${name} not found`);
             return;
         }
 
-        const channel = this.channel;
-        const statusByte = 0x80 + (channel - 1); // Note-Off for Channel 2
-        const noteNumber = button.midi;
-
-        console.log(`Unhighlighting ${name} -> MIDI: [${statusByte}, ${noteNumber}, 0]`);
-        this.output?.send([statusByte, noteNumber, 0]);
+        const minVelocity = 0
+        this.output?.sendNoteOn(button[color], minVelocity);
     }
 
     /**
