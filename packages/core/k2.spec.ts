@@ -157,19 +157,25 @@ describe("K2", () => {
 
         vi.spyOn(output, 'sendNoteOn')
 
-        // green:B0
-        // midi: 15
-
         k2.highlightButton('exit-setup', 'green')
 
         expect(output.sendNoteOn).toHaveBeenCalledWith('B0', 127)
-        // expect(output?.send).toHaveBeenCalledWith([177, 16, 127])
     })
 
-    it.skip('should unhighlight the given button', () => {
-        // const k2 = new K2(2)
-        // k2.unhighlightButton(1)
-        // expect(k2.isButtonHighlighted(1)).toBe(false)
+    it('should unhighlight the given button', async () => {
+        const channel = 2
+        const provider = new FakeMIDIProvider()
+        const output = new FakeMIDIOutput("output-2")
+        provider.setOutput({ name: "XONE:K2", channel }, output)
+
+        const k2 = new K2(channel, provider)
+        await k2.connect()
+
+        vi.spyOn(output, 'sendNoteOff')
+
+        k2.unhighlightButton('exit-setup')
+
+        expect(output.sendNoteOff).toHaveBeenCalledWith('B0')
     })
 
     it.skip('should unhighlight all buttons', () => {

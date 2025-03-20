@@ -120,8 +120,7 @@ export class K2 {
             return;
         }
 
-        const minVelocity = 0
-        this.output?.sendNoteOn(button[color], minVelocity);
+        this.output?.sendNoteOff(button['green']);
     }
 
     /**

@@ -215,7 +215,7 @@ export const buttons: Button[] = [
         amber: "",
         green: "",
     },
-];
+] as const;
 
 export type Knob = {
     name: 'knob-1' | 'knob-2' | 'knob-3' | 'knob-4' | 'knob-5' | 'knob-6' | 'knob-7' | 'knob-8' | 'knob-9' | 'knob-10' | 'knob-11' | 'knob-12'
