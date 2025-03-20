@@ -89,6 +89,7 @@ modeToggleButton.addEventListener('click', () => {
 })
 
 document.addEventListener('DOMContentLoaded', () => {
+    k2.connect()
     const colorButtons = document.querySelectorAll<HTMLButtonElement>('.color-button')
 
     colorButtons.forEach(button => {
