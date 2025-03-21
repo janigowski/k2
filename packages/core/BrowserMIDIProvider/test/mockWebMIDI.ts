@@ -1,5 +1,5 @@
 // test/mockWebMIDI.ts
-class MIDIConnectionEvent extends Event {
+export class MIDIConnectionEvent extends Event {
     port: MockMIDIInput | MockMIDIOutput;
     constructor(type: string, port: MockMIDIInput | MockMIDIOutput) {
         super(type);
@@ -7,7 +7,7 @@ class MIDIConnectionEvent extends Event {
     }
 }
 
-class MIDIMessageEvent extends Event {
+export class MIDIMessageEvent extends Event {
     data: Uint8Array;
     constructor(type: string, eventInitDict: { data: Uint8Array }) {
         super(type);
@@ -15,8 +15,7 @@ class MIDIMessageEvent extends Event {
     }
 }
 
-// test/mockWebMIDI.ts
-class MockMIDIInput extends EventTarget {
+export class MockMIDIInput extends EventTarget implements WebMidi.MIDIInput {
     id: string;
     name: string;
     manufacturer: string;
@@ -25,32 +24,29 @@ class MockMIDIInput extends EventTarget {
     onmidimessage: ((event: MIDIMessageEvent) => void) | null = null;
 
     constructor(id: string, name: string) {
-        super();
+        super()
         this.id = id;
         this.name = name;
         this.manufacturer = "Mock Manufacturer";
     }
 
-    async open(): Promise<void> {
+    async open(): Promise<MIDIPort> {
         this.state = "connected";
+        return this;
     }
 
-    async close(): Promise<void> {
+    async close(): Promise<MIDIPort> {
         this.state = "disconnected";
+        return this;
     }
 
     receiveMIDIMessage(data: number[]) {
         const event = new MIDIMessageEvent("midimessage", { data: new Uint8Array(data) });
         if (this.onmidimessage) this.onmidimessage(event);
-        this.dispatchEvent(event);
-    }
-
-    addListener(eventType: string, callback: (event: Event) => void) {
-        this.addEventListener(eventType, callback);
     }
 }
 
-class MockMIDIOutput {
+export class MockMIDIOutput {
     id: string;
     name: string;
     manufacturer: string;
@@ -77,7 +73,7 @@ class MockMIDIOutput {
 }
 
 
-class MockMIDIAccess extends EventTarget {
+export class MockMIDIAccess extends EventTarget {
     inputs: Map<string, MockMIDIInput>;
     outputs: Map<string, MockMIDIOutput>;
     onstatechange: ((event: MIDIConnectionEvent) => void) | null = null;
@@ -129,8 +125,6 @@ class MockMIDIAccess extends EventTarget {
     }
 }
 
-function createMockMIDIAccess(): MockMIDIAccess {
+export function createMockMIDIAccess(): MockMIDIAccess {
     return new MockMIDIAccess();
 }
-
-export { MIDIMessageEvent, MockMIDIInput, MockMIDIOutput, MockMIDIAccess, createMockMIDIAccess };

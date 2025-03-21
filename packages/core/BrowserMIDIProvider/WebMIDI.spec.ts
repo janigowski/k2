@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { MockMIDIAccess } from "./mockWebMIDI";
-import { getMockMIDIAccess } from "./setup";
+import type { MockMIDIAccess } from "./test/mockWebMIDI";
+import { getMockMIDIAccess } from "./test/setup";
 
 describe("WebMIDI Library with Multiple Devices", () => {
     beforeEach(() => {

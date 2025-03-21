@@ -1,7 +1,11 @@
 import { createK2 } from '../../core/index.ts'
 import type { ButtonName, Color } from '../../core/controlls'
+import { K2 } from '../../core/K2.ts'
+import { BrowserMIDIProvider } from '../../core/BrowserMIDIProvider/BrowserMIDIProvider.ts'
 
-const k2 = createK2(2)
+const channel = 2
+const browserMIDIProvider = new BrowserMIDIProvider()
+const k2 = new K2(channel, browserMIDIProvider)
 const statusEl = document.getElementById('status')
 const eventsEl = document.getElementById('events')
 const connectButton = document.getElementById('connect')

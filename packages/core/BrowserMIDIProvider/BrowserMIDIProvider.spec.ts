@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BrowserMIDIProvider } from "./BrowserMIDIProvider";
+import { BrowserMIDIProvider, BrowserMIDIOutput } from "./BrowserMIDIProvider";
 
 describe('BrowserMIDIProvider', () => {
     it('should be defined', () => {
@@ -7,6 +7,10 @@ describe('BrowserMIDIProvider', () => {
     })
 
     it('should connect to the MIDI device', () => {
+        const provider = new BrowserMIDIProvider()
+    })
+
+    it('should route events to the correct input', () => {
         const provider = new BrowserMIDIProvider()
     })
 })
