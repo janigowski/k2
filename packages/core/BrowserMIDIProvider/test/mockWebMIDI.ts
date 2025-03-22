@@ -1,130 +1,186 @@
 // test/mockWebMIDI.ts
-export class MIDIConnectionEvent extends Event {
-    port: MockMIDIInput | MockMIDIOutput;
-    constructor(type: string, port: MockMIDIInput | MockMIDIOutput) {
+
+export class MIDIConnectionEvent extends Event implements WebMidi.MIDIConnectionEvent {
+    port: WebMidi.MIDIPort;
+
+    constructor(type: string, port: WebMidi.MIDIPort) {
         super(type);
         this.port = port;
     }
 }
 
-export class MIDIMessageEvent extends Event {
+export class MIDIMessageEvent extends Event implements WebMidi.MIDIMessageEvent {
     data: Uint8Array;
+
     constructor(type: string, eventInitDict: { data: Uint8Array }) {
         super(type);
         this.data = eventInitDict.data;
     }
 }
 
-export class MockMIDIInput extends EventTarget implements WebMidi.MIDIInput {
+export class MockMIDIInput extends EventTarget {
     id: string;
-    name: string;
     manufacturer: string;
-    type: "input" = "input";
+    name: string;
+    readonly type: "input" = "input";
+    version: string = "1.0.0";
     state: "connected" | "disconnected" = "connected";
-    onmidimessage: ((event: MIDIMessageEvent) => void) | null = null;
+    connection: "open" | "closed" | "pending" = "closed";
+    onmidimessage: ((this: WebMidi.MIDIInput, e: WebMidi.MIDIMessageEvent) => void) | null = null;
+    onstatechange: ((this: WebMidi.MIDIInput, e: WebMidi.MIDIConnectionEvent) => void) | null = null;
 
     constructor(id: string, name: string) {
-        super()
+        super();
         this.id = id;
         this.name = name;
         this.manufacturer = "Mock Manufacturer";
     }
 
-    async open(): Promise<MIDIPort> {
+    open(): Promise<WebMidi.MIDIPort> {
+        this.connection = "open";
         this.state = "connected";
-        return this;
+        return Promise.resolve(this as unknown as WebMidi.MIDIPort);
     }
 
-    async close(): Promise<MIDIPort> {
+    close(): Promise<WebMidi.MIDIPort> {
+        this.connection = "closed";
         this.state = "disconnected";
-        return this;
+        return Promise.resolve(this as unknown as WebMidi.MIDIPort);
     }
 
-    receiveMIDIMessage(data: number[]) {
-        const event = new MIDIMessageEvent("midimessage", { data: new Uint8Array(data) });
-        if (this.onmidimessage) this.onmidimessage(event);
+    // Custom method to simulate receiving MIDI messages
+    receiveMIDIMessage(data: number[]): void {
+        const event = new MIDIMessageEvent("midimessage", {
+            data: new Uint8Array(data)
+        });
+
+        if (this.onmidimessage) {
+            this.onmidimessage.call(this as unknown as WebMidi.MIDIInput, event);
+        }
+
+        this.dispatchEvent(event);
     }
 }
 
-export class MockMIDIOutput {
+// TypeScript cast to assert that our class satisfies the WebMidi.MIDIInput interface
+(MockMIDIInput.prototype as any as WebMidi.MIDIInput);
+
+export class MockMIDIOutput extends EventTarget {
     id: string;
+    manufacturer: string = "Mock Manufacturer";
     name: string;
-    manufacturer: string;
-    type: "output" = "output";
+    readonly type: "output" = "output";
+    version: string = "1.0.0";
     state: "connected" | "disconnected" = "connected";
+    connection: "open" | "closed" | "pending" = "closed";
+    onstatechange: ((this: WebMidi.MIDIOutput, e: WebMidi.MIDIConnectionEvent) => void) | null = null;
 
     constructor(id: string, name: string) {
+        super();
         this.id = id;
         this.name = name;
-        this.manufacturer = "Mock Manufacturer";
     }
 
-    async open(): Promise<void> {
+    open(): Promise<WebMidi.MIDIPort> {
+        this.connection = "open";
         this.state = "connected";
+        return Promise.resolve(this as unknown as WebMidi.MIDIPort);
     }
 
-    async close(): Promise<void> {
+    close(): Promise<WebMidi.MIDIPort> {
+        this.connection = "closed";
         this.state = "disconnected";
+        return Promise.resolve(this as unknown as WebMidi.MIDIPort);
     }
 
-    send(data: number[], timestamp?: number) {
-        console.log(`MIDI Output (${this.name}): Sent ${data} at ${timestamp ?? performance.now()}`);
+    send(data: Uint8Array | number[], timestamp?: number): void {
+        const dataArray = data instanceof Uint8Array ? Array.from(data) : data;
+        console.log(`MIDI Output (${this.name}): Sent ${dataArray} at ${timestamp ?? performance.now()}`);
+    }
+
+    clear(): void {
+        console.log(`MIDI Output (${this.name}): Cleared pending messages`);
     }
 }
 
+// TypeScript cast to assert that our class satisfies the WebMidi.MIDIOutput interface
+(MockMIDIOutput.prototype as any as WebMidi.MIDIOutput);
 
 export class MockMIDIAccess extends EventTarget {
-    inputs: Map<string, MockMIDIInput>;
-    outputs: Map<string, MockMIDIOutput>;
-    onstatechange: ((event: MIDIConnectionEvent) => void) | null = null;
+    inputs: WebMidi.MIDIInputMap;
+    outputs: WebMidi.MIDIOutputMap;
+    onstatechange: ((this: WebMidi.MIDIAccess, e: WebMidi.MIDIConnectionEvent) => void) | null = null;
+    sysexEnabled: boolean = false;
 
-    constructor() {
+    private _inputs: Map<string, MockMIDIInput>;
+    private _outputs: Map<string, MockMIDIOutput>;
+
+    constructor(options?: WebMidi.MIDIOptions) {
         super();
-        this.inputs = new Map();
-        this.outputs = new Map();
+        this._inputs = new Map();
+        this._outputs = new Map();
+
+        // Cast our mutable maps to readonly maps for the interface
+        this.inputs = this._inputs as unknown as WebMidi.MIDIInputMap;
+        this.outputs = this._outputs as unknown as WebMidi.MIDIOutputMap;
+
+        if (options) {
+            this.sysexEnabled = !!options.sysex;
+        }
 
         // Default devices
         this.addInput("input-1", "Mock MIDI Input 1");
         this.addOutput("output-1", "Mock MIDI Output 1");
     }
 
-    addInput(id: string, name: string) {
+    addInput(id: string, name: string): void {
         const input = new MockMIDIInput(id, name);
-        this.inputs.set(id, input);
-        const event = new MIDIConnectionEvent("statechange", input);
+        this._inputs.set(id, input);
+        const event = new MIDIConnectionEvent("statechange", input as unknown as WebMidi.MIDIPort);
         this.dispatchEvent(event);
-        if (this.onstatechange) this.onstatechange(event);
-    }
-
-    addOutput(id: string, name: string) {
-        const output = new MockMIDIOutput(id, name);
-        this.outputs.set(id, output);
-        const event = new MIDIConnectionEvent("statechange", output);
-        this.dispatchEvent(event);
-        if (this.onstatechange) this.onstatechange(event);
-    }
-
-    removeInput(id: string) {
-        if (this.inputs.has(id)) {
-            const input = this.inputs.get(id)!;
-            this.inputs.delete(id);
-            const event = new MIDIConnectionEvent("statechange", input);
-            this.dispatchEvent(event);
-            if (this.onstatechange) this.onstatechange(event);
+        if (this.onstatechange) {
+            this.onstatechange.call(this as unknown as WebMidi.MIDIAccess, event);
         }
     }
 
-    removeOutput(id: string) {
-        if (this.outputs.has(id)) {
-            const output = this.outputs.get(id)!;
-            this.outputs.delete(id);
-            const event = new MIDIConnectionEvent("statechange", output);
+    addOutput(id: string, name: string): void {
+        const output = new MockMIDIOutput(id, name);
+        this._outputs.set(id, output);
+        const event = new MIDIConnectionEvent("statechange", output as unknown as WebMidi.MIDIPort);
+        this.dispatchEvent(event);
+        if (this.onstatechange) {
+            this.onstatechange.call(this as unknown as WebMidi.MIDIAccess, event);
+        }
+    }
+
+    removeInput(id: string): void {
+        if (this._inputs.has(id)) {
+            const input = this._inputs.get(id)!;
+            this._inputs.delete(id);
+            const event = new MIDIConnectionEvent("statechange", input as unknown as WebMidi.MIDIPort);
             this.dispatchEvent(event);
-            if (this.onstatechange) this.onstatechange(event);
+            if (this.onstatechange) {
+                this.onstatechange.call(this as unknown as WebMidi.MIDIAccess, event);
+            }
+        }
+    }
+
+    removeOutput(id: string): void {
+        if (this._outputs.has(id)) {
+            const output = this._outputs.get(id)!;
+            this._outputs.delete(id);
+            const event = new MIDIConnectionEvent("statechange", output as unknown as WebMidi.MIDIPort);
+            this.dispatchEvent(event);
+            if (this.onstatechange) {
+                this.onstatechange.call(this as unknown as WebMidi.MIDIAccess, event);
+            }
         }
     }
 }
 
-export function createMockMIDIAccess(): MockMIDIAccess {
-    return new MockMIDIAccess();
+// TypeScript cast to assert that our class satisfies the WebMidi.MIDIAccess interface
+(MockMIDIAccess.prototype as any as WebMidi.MIDIAccess);
+
+export function createMockMIDIAccess(options?: WebMidi.MIDIOptions): MockMIDIAccess {
+    return new MockMIDIAccess(options);
 }
