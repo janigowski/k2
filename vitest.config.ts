@@ -3,6 +3,6 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
     test: {
-        setupFiles: "./packages/core/test/setup.ts",
+        setupFiles: "./packages/core/BrowserMIDIProvider/test/setup.ts",
     },
 });
