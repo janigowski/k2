@@ -16,18 +16,6 @@ export class BrowserMIDIProvider implements MIDIProvider {
     }
 
     async disconnect() {
-        console.log('disconnect')
-        this.detachHandlers()
-    }
-
-    private attachHandlers() {
-        if (this.midiAccess) {
-
-        }
-    }
-
-    private detachHandlers() {
-
     }
 
     getInput(options: MIDIIdentifierOptions): MIDIInput | undefined {
@@ -40,12 +28,6 @@ export class BrowserMIDIProvider implements MIDIProvider {
         const key = this.getInputKey(options)
 
         return this.outputs[key]
-    }
-
-    sendSomething() {
-        // const channel = this.channel;
-        // const statusByte = 0x90 + (channel - 1);
-        // const noteNumber = this.noteNameToMidi(button[color]);
     }
 
     setInput(options: MIDIIdentifierOptions, input: MIDIInput) {
