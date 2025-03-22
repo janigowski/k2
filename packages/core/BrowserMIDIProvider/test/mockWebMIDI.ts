@@ -93,13 +93,10 @@ export class MockMIDIOutput extends EventTarget {
         return Promise.resolve(this as unknown as WebMidi.MIDIPort);
     }
 
-    send(data: Uint8Array | number[], timestamp?: number): void {
-        const dataArray = data instanceof Uint8Array ? Array.from(data) : data;
-        console.log(`MIDI Output (${this.name}): Sent ${dataArray} at ${timestamp ?? performance.now()}`);
+    send(data: Uint8Array | number[]): void {
     }
 
     clear(): void {
-        console.log(`MIDI Output (${this.name}): Cleared pending messages`);
     }
 }
 

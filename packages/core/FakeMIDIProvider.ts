@@ -79,14 +79,11 @@ export class FakeMIDIOutput implements MIDIOutput {
     }
 
     send(data: number[]): void {
-        console.log('send', data)
     }
 
     sendNoteOn(note: string, velocity: number): void {
-        console.log('sendNoteOn', note, velocity)
     }
 
     sendNoteOff(note: string): void {
-        console.log('sendNoteOff', note)
     }
 }
