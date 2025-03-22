@@ -67,13 +67,15 @@ export class K2 {
                 if (button) {
                     const strippedButton = this.stripButton(button)
 
-                    if (velocity === 127) {
-                        this.emitter.emit('button.press', strippedButton);
-                    }
+                    this.emitter.emit('button.press', strippedButton);
+                }
+            })
 
-                    if (velocity === 0) {
-                        this.emitter.emit('button.release', strippedButton);
-                    }
+            this.input.on('note.off', ({ note, velocity }) => {
+                const button = buttons.find(b => b.midi === note);
+
+                if (button) {
+                    this.emitter.emit('button.release', this.stripButton(button));
                 }
             })
 

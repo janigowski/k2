@@ -64,7 +64,7 @@ describe("K2", () => {
         const handler = vi.fn()
         k2.on('button.release', handler)
 
-        input.emit('note.on', { note: 15, velocity: 0 })
+        input.emit('note.off', { note: 15, velocity: 0 })
 
         expect(handler).toHaveBeenCalledWith(
             {
