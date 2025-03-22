@@ -48,8 +48,7 @@ export type MIDIEventName = keyof MIDIEventTypes;
 
 export interface MIDIInput {
     name: string
-
-    setChannel(channel: number): void
+    channel: number
 
     on<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void
     off<T extends MIDIEventName>(event: T, callback: (data: MIDIEventTypes[T]) => void): void

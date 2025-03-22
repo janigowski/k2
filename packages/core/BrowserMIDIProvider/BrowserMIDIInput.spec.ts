@@ -14,92 +14,69 @@ describe("BrowserMIDIInput", () => {
         midiAccess.addOutput("output-1", "Mock MIDI Output 1");
     });
 
-    it.only("should emit events only for attached channel", async () => {
+    it("should emit events only for attached channel", async () => {
         const midiAccess = await navigator.requestMIDIAccess() as unknown as MockMIDIAccess;
 
-        const input = midiAccess.inputs.values().next().value as MockMIDIInput
-        const browserInput = new BrowserMIDIInput(input.name, input)
+        const input = midiAccess.inputs.values().next().value
+        const channel = 5
+        const browserInput = new BrowserMIDIInput('input-1', channel, input as WebMidi.MIDIInput);
 
         const onMessage = vi.fn();
-        browserInput.on('midi.connect', onMessage)
+        browserInput.on('note.on', onMessage);
 
-        input.receiveMIDIMessage([144, 64, 127]);
+        /* MIDI Message for Channel 5
+        Status Byte = 0x94 = (0x90 + 0x04) = (Note On + Channel 4)
+        */
+        (input as MockMIDIInput).receiveMIDIMessage([0x94, 0, 0]);
+        (input as MockMIDIInput).receiveMIDIMessage([0x95, 0, 0]);
+        (input as MockMIDIInput).receiveMIDIMessage([0x96, 0, 0]);
+        (input as MockMIDIInput).receiveMIDIMessage([0x9f, 0, 0]);
 
-        expect(onMessage).toHaveBeenCalledWith();
+        expect(onMessage).toHaveBeenCalledTimes(1)
     });
 
     it("should emit Note On events", async () => {
-        // "note.on": { note: number; velocity: number };
-
         const midiAccess = await navigator.requestMIDIAccess() as unknown as MockMIDIAccess;
 
-        const input = midiAccess.inputs.values().next().value;
-        const output = midiAccess.outputs.values().next().value;
-
-
+        const input = midiAccess.inputs.values().next().value
+        const channel = 4
+        const browserInput = new BrowserMIDIInput('input-1', channel, input as WebMidi.MIDIInput);
 
         const onMessage = vi.fn();
-        input?.addEventListener("midimessage", onMessage);
+        browserInput.on('note.on', onMessage);
 
-        (input as any)?.receiveMIDIMessage([144, 64, 127]);
-        output?.send([144, 64, 127]);
+        (input as MockMIDIInput).receiveMIDIMessage([0x93, 64, 127]);
 
-        expect(onMessage).toHaveBeenCalled();
+        expect(onMessage).toHaveBeenCalledWith({ note: 64, velocity: 127 });
     });
 
     it("should emit Note Off events", async () => {
-        // "note.off": { note: number; velocity: number };
         const midiAccess = await navigator.requestMIDIAccess() as unknown as MockMIDIAccess;
 
-        const input = midiAccess.inputs.values().next().value;
-        const output = midiAccess.outputs.values().next().value;
-
-
+        const input = midiAccess.inputs.values().next().value
+        const channel = 4
+        const browserInput = new BrowserMIDIInput('input-1', channel, input as WebMidi.MIDIInput);
 
         const onMessage = vi.fn();
-        input?.addEventListener("midimessage", onMessage);
+        browserInput.on('note.off', onMessage);
 
-        (input as any)?.receiveMIDIMessage([144, 64, 127]);
-        output?.send([144, 64, 127]);
+        (input as MockMIDIInput).receiveMIDIMessage([0x83, 0, 0]);
 
-        expect(onMessage).toHaveBeenCalled();
+        expect(onMessage).toHaveBeenCalledWith({ note: 0, velocity: 0 });
     });
 
     it("should emit Control Change events", async () => {
-        // 🎛️ Control Change (CC) Events
-        // "control.change": { cc: number; value: number };
         const midiAccess = await navigator.requestMIDIAccess() as unknown as MockMIDIAccess;
 
-        const input = midiAccess.inputs.values().next().value;
-        const output = midiAccess.outputs.values().next().value;
-
-
-
-        const onMessage = vi.fn();
-        input?.addEventListener("midimessage", onMessage);
-
-        (input as any)?.receiveMIDIMessage([144, 64, 127]);
-        output?.send([144, 64, 127]);
-
-        expect(onMessage).toHaveBeenCalled();
-    });
-
-
-
-    it("should receive MIDI messages", async () => {
-        const midiAccess = await navigator.requestMIDIAccess() as unknown as MockMIDIAccess;
-
-        const input = midiAccess.inputs.values().next().value;
-        const output = midiAccess.outputs.values().next().value;
-
-
+        const input = midiAccess.inputs.values().next().value
+        const channel = 4
+        const browserInput = new BrowserMIDIInput('input-1', channel, input as WebMidi.MIDIInput);
 
         const onMessage = vi.fn();
-        input?.addEventListener("midimessage", onMessage);
+        browserInput.on('control.change', onMessage);
 
-        (input as any)?.receiveMIDIMessage([144, 64, 127]);
-        output?.send([144, 64, 127]);
+        (input as MockMIDIInput).receiveMIDIMessage([0xB3, 0, 0]);
 
-        expect(onMessage).toHaveBeenCalled();
+        expect(onMessage).toHaveBeenCalledWith({ cc: 0, value: 0 });
     });
 });
