@@ -2,12 +2,17 @@ import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
 import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders, controls } from "./controlls";
 import type { MIDIInput, MIDIOutput, MIDIProvider } from "./interfaces/MIDIProvider";
+
+export type KnobEvent = { name: string, value: number }
+export type FaderEvent = { name: string, value: number }
+export type EncoderEvent = { name: string, value: -1 | 1 }
+
 type ButtonEvents = {
     'button.press': StrippedButton;
     'button.release': StrippedButton;
-    'fader.change': { name: string, value: number };
-    'knob.change': { name: string, value: number };
-    'encoder.turn': { name: string, value: -1 | 1 };
+    'fader.change': FaderEvent;
+    'knob.change': KnobEvent;
+    'encoder.turn': EncoderEvent;
 };
 
 type Events = {
@@ -29,8 +34,10 @@ export class K2 {
 
     async connect(): Promise<void> {
         try {
-            const input = this.provider?.getInput({ name: 'XONE:K2', channel: this.channel })
-            const output = this.provider?.getOutput({ name: 'XONE:K2', channel: this.channel })
+            const input = this.provider.getInput({ name: 'XONE:K2', channel: this.channel })
+            const output = this.provider.getOutput({ name: 'XONE:K2', channel: this.channel })
+
+            console.log({ input, output })
 
             if (input) {
                 this.input = input
