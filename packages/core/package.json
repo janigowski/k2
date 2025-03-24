@@ -1,0 +1,20 @@
+{
+    "name": "@k2/core",
+    "version": "0.0.0",
+    "type": "module",
+    "main": "index.ts",
+    "types": "index.ts",
+    "exports": {
+        ".": "./index.ts",
+        "./BrowserMIDIProvider": "./BrowserMIDIProvider/index.ts"
+    },
+    "dependencies": {
+        "@types/webmidi": "^2.1.0",
+        "debug": "^4.4.0",
+        "mitt": "^3.0.1"
+    },
+    "devDependencies": {
+        "@types/debug": "^4.1.12",
+        "typescript": "^5.0.0"
+    }
+}

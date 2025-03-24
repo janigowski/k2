@@ -2,6 +2,9 @@
   "name": "k2",
   "module": "index.ts",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "test": "vitest",
     "test:watch": "vitest --watch",
