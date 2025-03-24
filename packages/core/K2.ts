@@ -22,17 +22,34 @@ type Events = {
 
 type EventNames = keyof Events
 
+export enum K2State {
+    Disconnected = 'disconnected',
+    Connecting = 'connecting',
+    Connected = 'connected',
+    Error = 'error'
+}
+
 export class K2 {
     private emitter: Emitter<Events>
     private input?: MIDIInput
     private output?: MIDIOutput
+    private state: K2State = K2State.Disconnected
 
     constructor(private channel: Channel, public provider: MIDIProvider) {
         this.emitter = mitt()
+    }
 
+    getState(): K2State {
+        return this.state
     }
 
     async connect(): Promise<void> {
+        if (this.state === K2State.Connecting || this.state === K2State.Connected) {
+            return
+        }
+
+        this.state = K2State.Connecting
+
         try {
             const input = this.provider.getInput({ name: 'XONE:K2', channel: this.channel })
             const output = this.provider.getOutput({ name: 'XONE:K2', channel: this.channel })
@@ -42,6 +59,7 @@ export class K2 {
             if (input) {
                 this.input = input
                 this.attachInputEvents()
+                this.state = K2State.Connected
                 this.emitter.emit('connect')
             }
 
@@ -50,6 +68,7 @@ export class K2 {
             }
         } catch (error) {
             console.log('Error connecting to K2', error)
+            this.state = K2State.Error
             this.emitter.emit('connectionError', error)
         }
     }
