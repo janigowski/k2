@@ -338,6 +338,10 @@ export const faders: Fader[] = [
     },
 ];
 
+export function getFaderByControlChange(cc: number): Fader | undefined {
+    return faders.find((fader) => fader.cc === cc);
+}
+
 export type Encoder = {
     name: string;
     cc: number;
