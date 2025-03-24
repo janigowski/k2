@@ -2,27 +2,27 @@ import { describe, expect, it } from "vitest";
 import { buttons, encoders, faders, getButtonByMidi, getEncoderByControlChange, getFaderByControlChange, getKnobByControlChange, getLedByName, knobs, leds, type LedName } from "./controlls";
 
 describe("Controls", () => {
-    it("should have 36 buttons", () => {
+    it("have 36 Buttons", () => {
         expect(buttons.length).toBe(36);
     })
 
-    it("should have 4 faders", () => {
+    it("have 4 Faders", () => {
         expect(faders.length).toBe(4);
     })
 
-    it("should have 12 knobs", () => {
+    it("have 12 Knobs", () => {
         expect(knobs.length).toBe(12);
     })
 
-    it("should have 6 encoders", () => {
+    it("have 6 Encoders", () => {
         expect(encoders.length).toBe(6);
     })
 
-    it("should have 34 LEDs", () => {
+    it("have 34 LEDs", () => {
         expect(leds.length).toBe(34);
     })
 
-    it("should map button names to MIDI numbers", () => {
+    it("map Buttons name to MIDI number", () => {
         const buttonsMap = [
             { name: "encoder-1", note: 'E3', midi: 52 },
             { name: "encoder-2", note: 'F3', midi: 53 },
@@ -70,7 +70,7 @@ describe("Controls", () => {
         });
     });
 
-    it("should map LED names to colors", () => {
+    it("map LED names to color", () => {
         const ledsMap: { name: LedName, red: string, amber: string, green: string }[] = [
             {
                 name: "encoder-1",
@@ -288,7 +288,7 @@ describe("Controls", () => {
         });
     });
 
-    it("should map Encoders Control Change number to names", () => {
+    it("map Encoders Control Change number to names", () => {
         const encodersMap = [
             { name: "encoder-1", cc: 0 },
             { name: "encoder-2", cc: 1 },
@@ -306,7 +306,7 @@ describe("Controls", () => {
         });
     });
 
-    it("should map Faders Control Change number to names", () => {
+    it("map Faders Control Change number to names", () => {
         const fadersMap = [
             { name: "fader-1", cc: 16 },
             { name: "fader-2", cc: 17 },
@@ -322,7 +322,7 @@ describe("Controls", () => {
         });
     });
 
-    it("should map Knobs Control Change number to names", () => {
+    it("map Knobs Control Change number to names", () => {
         const knobsMap = [
             { name: "knob-1", cc: 4 },
             { name: "knob-2", cc: 5 },
