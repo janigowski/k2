@@ -63,26 +63,3 @@ export class BrowserMIDIProvider implements MIDIProvider {
     }
 
 }
-
-export class BrowserMIDIOutput implements MIDIOutput {
-    constructor(public name: string, private readonly output: MIDIAccess) {
-
-    }
-
-    setChannel(channel: number) {
-
-    }
-
-    send(data: number[]) {
-
-    }
-
-    sendNoteOn(note: string, velocity: number) {
-
-    }
-
-    sendNoteOff(note: string) {
-
-    }
-
-}
