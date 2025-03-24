@@ -81,8 +81,6 @@ export type FaderName =
     | "fader-2"
     | "fader-3"
     | "fader-4"
-    | "fader-5"
-    | "fader-6"
 
 
 export type Button = {
