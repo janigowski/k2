@@ -364,10 +364,6 @@ export const knobs: Knob[] = [
     }
 ];
 
-export function getKnobByControlChange(cc: number): Knob | undefined {
-    return knobs.find((knob) => knob.cc === cc);
-}
-
 export const faders: Fader[] = [
     {
         type: "fader",
@@ -390,10 +386,6 @@ export const faders: Fader[] = [
         cc: 19,
     },
 ];
-
-export function getFaderByControlChange(cc: number): Fader | undefined {
-    return faders.find((fader) => fader.cc === cc);
-}
 
 export const encoders: Encoder[] = [
     {
@@ -427,10 +419,6 @@ export const encoders: Encoder[] = [
         cc: 21,
     },
 ];
-
-export function getEncoderByControlChange(cc: number): Encoder | undefined {
-    return encoders.find((encoder) => encoder.cc === cc);
-}
 
 export type LedName =
     | "encoder-1"

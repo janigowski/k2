@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buttons, encoders, faders, getButtonByMidi, getEncoderByControlChange, getFaderByControlChange, getKnobByControlChange, getLedByName, knobs, leds, type LedName } from "./controlls";
+import { buttons, encoders, faders, getButtonByMidi, getControlByControlChange, getLedByName, knobs, leds, type LedName } from "./controlls";
 
 describe("Controls", () => {
     it("have 36 Buttons", () => {
@@ -300,7 +300,7 @@ describe("Controls", () => {
 
 
         encodersMap.forEach((item) => {
-            const encoder = getEncoderByControlChange(item.cc);
+            const encoder = getControlByControlChange(item.cc);
 
             expect(encoder?.name).toBe(item.name);
         });
@@ -316,7 +316,7 @@ describe("Controls", () => {
 
 
         fadersMap.forEach((item) => {
-            const fader = getFaderByControlChange(item.cc);
+            const fader = getControlByControlChange(item.cc);
 
             expect(fader?.name).toBe(item.name);
         });
@@ -340,7 +340,7 @@ describe("Controls", () => {
 
 
         knobsMap.forEach((item) => {
-            const knob = getKnobByControlChange(item.cc);
+            const knob = getControlByControlChange(item.cc);
 
             expect(knob?.name).toBe(item.name);
         });
