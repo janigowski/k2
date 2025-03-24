@@ -370,6 +370,10 @@ export const encoders: Encoder[] = [
     },
 ];
 
+export function getEncoderByControlChange(cc: number): Encoder | undefined {
+    return encoders.find((encoder) => encoder.cc === cc);
+}
+
 export type LedName =
     | "encoder-1"
     | "encoder-2"
