@@ -4,6 +4,7 @@ import { K2 } from "./K2"
 import type { MockMIDIAccess } from "./BrowserMIDIProvider/test/mockWebMIDI";
 import { createTestEnvironment } from "./BrowserMIDIProvider/test/setup";
 import { FakeMIDIInput, FakeMIDIOutput, FakeMIDIProvider } from "./FakeMIDIProvider";
+
 describe("K2", () => {
     const testEnv = createTestEnvironment();
 

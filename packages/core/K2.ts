@@ -137,9 +137,6 @@ export class K2 {
         this.output?.sendNoteOn(button[color], maxVelocity);
     }
 
-    /**
-     * Turns off the LED of a button.
-     */
     unhighlightButton(name: ButtonName) {
         const button = buttons.find(b => b.name === name);
 
@@ -149,41 +146,5 @@ export class K2 {
         }
 
         this.output?.sendNoteOff(button['green']);
-    }
-
-    /**
-     * Converts MIDI note names (e.g., "C2", "B0") into MIDI numbers (e.g., 35).
-     */
-    noteNameToMidi(note: string): number | null {
-        const noteMap: Record<string, number> = {
-            "C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5,
-            "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11
-        };
-
-        const match = note.match(/^([A-G]#?)(-?\d)$/);
-        if (!match) {
-            console.error(`Invalid MIDI note: ${note}`);
-            return null;
-        }
-
-        const [, notePart, octave] = match;
-        return (parseInt(octave) + 1) * 12 + noteMap[notePart];
-    }
-
-    /**
-     * Generates a mapping of MIDI note names to their corresponding note numbers.
-     */
-    private createMidiNoteMap(): Record<string, number> {
-        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const midiMap: Record<string, number> = {};
-
-        // MIDI note numbers for octave 0 start at 0 (C0)
-        for (let octave = 0; octave <= 9; octave++) {
-            noteNames.forEach((note, index) => {
-                const noteNumber = octave * 12 + index;
-                midiMap[`${note}${octave}`] = noteNumber;
-            });
-        }
-        return midiMap;
     }
 }   
