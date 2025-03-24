@@ -68,19 +68,24 @@ export class FakeMIDIInput implements MIDIInput {
     }
 }
 
-export class FakeMIDIOutput implements MIDIOutput {
-    private channel: number = 0
+export class FakeMIDIOutput implements WebMidi.MIDIOutput {
+    readonly type: "output" = "output";
+    readonly id: string;
+    readonly state: "connected" | "disconnected";
+    readonly connection: "open" | "closed" | "pending";
 
     constructor(public name: string) {
+        this.id = name
+        this.state = "connected"
+        this.connection = "open"
+        this.type = "output"
     }
 
-    setChannel(channel: number): void {
-        this.channel = channel
+
+
+    send(data: number[]): void {
     }
 
-    sendNoteOn(note: string, velocity: number): void {
-    }
-
-    sendNoteOff(note: string): void {
+    clear(): void {
     }
 }

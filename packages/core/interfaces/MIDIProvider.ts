@@ -56,9 +56,8 @@ export interface MIDIInput {
 
 export interface MIDIOutput {
     name: string
+    channel: number
 
-    setChannel(channel: number): void
-
-    sendNoteOn(note: string, velocity: number): void
-    sendNoteOff(note: string): void
+    sendNoteOn(note: number | string, velocity: number): void
+    sendNoteOff(note: number | string, velocity: number): void
 }
