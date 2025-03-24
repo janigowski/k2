@@ -44,7 +44,7 @@ export class FakeMIDIProvider implements MIDIProvider {
 }
 
 export class FakeMIDIInput implements MIDIInput {
-    private channel: number = 0
+    public channel: number = 0
     private emitter: Emitter<MIDIEventTypes>
 
     constructor(public name: string) {

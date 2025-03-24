@@ -1,6 +1,6 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders, controls } from "./controlls";
+import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders, controls, getButtonByMidi, type LedName, getLedByName } from "./controlls";
 import type { MIDIInput, MIDIOutput, MIDIProvider } from "./interfaces/MIDIProvider";
 
 export type KnobEvent = { name: string, value: number }
@@ -81,20 +81,18 @@ export class K2 {
         if (this.input) {
 
             this.input.on('note.on', ({ note, velocity }) => {
-                const button = buttons.find(b => b.midi === note);
+                const button = getButtonByMidi(note);
 
                 if (button) {
-                    const strippedButton = this.stripButton(button)
-
-                    this.emitter.emit('button.press', strippedButton);
+                    this.emitter.emit('button.press', button);
                 }
             })
 
             this.input.on('note.off', ({ note, velocity }) => {
-                const button = buttons.find(b => b.midi === note);
+                const button = getButtonByMidi(note);
 
                 if (button) {
-                    this.emitter.emit('button.release', this.stripButton(button));
+                    this.emitter.emit('button.release', button);
                 }
             })
 
@@ -118,33 +116,27 @@ export class K2 {
         }
     }
 
-    private stripButton(button: Button) {
-        return {
-            name: button.name,
-            midi: button.midi,
-        }
-    }
+    highlightLED(name: LedName, color: Color) {
+        const led = getLedByName(name)
 
-    highlightButton(name: ButtonName, color: Color) {
-        const button = buttons.find(b => b.name === name);
-
-        if (!button) {
-            console.error(`Button ${name} not found`);
+        if (!led) {
+            console.error(`LED ${name} not found`);
             return;
         }
 
         const maxVelocity = 127
-        this.output?.sendNoteOn(button[color], maxVelocity);
+        this.output?.sendNoteOn(led[color], maxVelocity);
     }
 
-    unhighlightButton(name: ButtonName) {
-        const button = buttons.find(b => b.name === name);
+    unhighlightLED(name: LedName) {
+        const led = getLedByName(name);
 
-        if (!button) {
-            console.error(`Button ${name} not found`);
+        if (!led) {
+            console.error(`LED ${name} not found`);
             return;
         }
 
-        this.output?.sendNoteOff(button['green']);
+        const anyColor = 'green'
+        this.output?.sendNoteOff(led[anyColor]);
     }
 }   

@@ -47,7 +47,8 @@ describe("K2", () => {
 
         expect(handler).toHaveBeenCalledWith(
             {
-                name: 'exit-setup',
+                name: "exit-setup",
+                note: "D#0",
                 midi: 15,
             }
         )
@@ -69,7 +70,8 @@ describe("K2", () => {
 
         expect(handler).toHaveBeenCalledWith(
             {
-                name: 'exit-setup',
+                name: "exit-setup",
+                note: "D#0",
                 midi: 15,
             }
         )
@@ -147,7 +149,7 @@ describe("K2", () => {
         )
     })
 
-    it('should highlight the given button', async () => {
+    it('should highlight LED', async () => {
         const channel = 2
         const provider = new FakeMIDIProvider()
         const output = new FakeMIDIOutput("output-2")
@@ -158,12 +160,12 @@ describe("K2", () => {
 
         vi.spyOn(output, 'sendNoteOn')
 
-        k2.highlightButton('exit-setup', 'green')
+        k2.highlightLED('exit-setup', 'green')
 
         expect(output.sendNoteOn).toHaveBeenCalledWith('B0', 127)
     })
 
-    it('should unhighlight the given button', async () => {
+    it('should unhighlight LED', async () => {
         const channel = 2
         const provider = new FakeMIDIProvider()
         const output = new FakeMIDIOutput("output-2")
@@ -174,7 +176,7 @@ describe("K2", () => {
 
         vi.spyOn(output, 'sendNoteOff')
 
-        k2.unhighlightButton('exit-setup')
+        k2.unhighlightLED('exit-setup')
 
         expect(output.sendNoteOff).toHaveBeenCalledWith('B0')
     })
