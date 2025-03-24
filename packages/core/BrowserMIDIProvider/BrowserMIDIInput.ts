@@ -20,7 +20,6 @@ export class BrowserMIDIInput implements MIDIInput {
 
     private attachHandlers() {
         this.input.addEventListener('midimessage', (event) => {
-            console.log(event.data)
             const parsedEvent = this.parseMessage(event.data)
 
             if (this.channel === parsedEvent?.channel) {

@@ -1,18 +1,19 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { buttons, type Button, type StrippedButton, type Color, type ButtonName, faders, controls, getButtonByMidi, type LedName, getLedByName } from "./controlls";
+import { type Button, type Color, getButtonByMidi, type LedName, getLedByName, getControlByControlChange, type Knob, type Fader, type Encoder } from "./controlls";
 import type { MIDIInput, MIDIOutput, MIDIProvider } from "./interfaces/MIDIProvider";
 
-export type KnobEvent = { name: string, value: number }
-export type FaderEvent = { name: string, value: number }
-export type EncoderEvent = { name: string, value: -1 | 1 }
+export type ButtonEvent = Button
+export type EncoderEvent = { name: Encoder['name'], value: -1 | 1 }
+export type FaderEvent = { name: Fader['name'], value: number }
+export type KnobEvent = { name: Knob['name'], value: number }
 
 type ButtonEvents = {
-    'button.press': StrippedButton;
-    'button.release': StrippedButton;
+    'button.press': ButtonEvent;
+    'button.release': ButtonEvent;
+    'encoder.turn': EncoderEvent;
     'fader.change': FaderEvent;
     'knob.change': KnobEvent;
-    'encoder.turn': EncoderEvent;
 };
 
 type Events = {
@@ -65,7 +66,6 @@ export class K2 {
                 this.output = output
             }
         } catch (error) {
-            console.log('Error connecting to K2', error)
             this.state = K2State.Error
             this.emitter.emit('connectionError', error)
         }
@@ -77,7 +77,6 @@ export class K2 {
 
     private attachInputEvents() {
         if (this.input) {
-
             this.input.on('note.on', ({ note, velocity }) => {
                 const button = getButtonByMidi(note);
 
@@ -95,9 +94,8 @@ export class K2 {
             })
 
             this.input.on('control.change', ({ cc, value }) => {
-                const control = controls.find(c => c.cc === cc);
+                const control = getControlByControlChange(cc);
                 const maxValue = 127
-
 
                 if (control?.name.includes('fader')) {
                     this.emitter.emit('fader.change', { name: control.name, value: value / maxValue });

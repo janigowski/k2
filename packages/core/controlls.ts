@@ -49,25 +49,45 @@ type LabeledButtonName =
     | "layer"
     | "exit-setup"
 
-export type ButtonName =
+export type EncoderName =
     | "encoder-1"
     | "encoder-2"
     | "encoder-3"
     | "encoder-4"
-    | UnlabeledButtonName
-    | LabeledButtonName
     | "encoder-5"
     | "encoder-6"
+
+export type ButtonName =
+    | LabeledButtonName
+    | UnlabeledButtonName
+    | EncoderName
+
+export type KnobName =
+    | "knob-1"
+    | "knob-2"
+    | "knob-3"
+    | "knob-4"
+    | "knob-5"
+    | "knob-6"
+    | "knob-7"
+    | "knob-8"
+    | "knob-9"
+    | "knob-10"
+    | "knob-11"
+    | "knob-12"
+
+export type FaderName =
+    | "fader-1"
+    | "fader-2"
+    | "fader-3"
+    | "fader-4"
+    | "fader-5"
+    | "fader-6"
+
 
 export type Button = {
     name: ButtonName;
     note: string;
-    midi: number;
-};
-
-// @TODO: remove
-export type StrippedButton = {
-    name: ButtonName;
     midi: number;
 };
 
@@ -259,7 +279,7 @@ export function getButtonByMidi(midi: number): Button | undefined {
 }
 
 export type Knob = {
-    name: 'knob-1' | 'knob-2' | 'knob-3' | 'knob-4' | 'knob-5' | 'knob-6' | 'knob-7' | 'knob-8' | 'knob-9' | 'knob-10' | 'knob-11' | 'knob-12'
+    name: KnobName
     cc: number;
 };
 
@@ -319,7 +339,7 @@ export function getKnobByControlChange(cc: number): Knob | undefined {
 }
 
 export type Fader = {
-    name: string;
+    name: FaderName;
     cc: number;
 };
 
@@ -347,7 +367,7 @@ export function getFaderByControlChange(cc: number): Fader | undefined {
 }
 
 export type Encoder = {
-    name: string;
+    name: EncoderName;
     cc: number;
 };
 
@@ -611,4 +631,9 @@ export function getLedByName(name: LedName): LED | undefined {
     return leds.find((led) => led.name === name);
 }
 
-export const controls = [...knobs, ...faders, ...encoders] as const;
+type Control = Knob | Fader | Encoder;
+const controls: Control[] = [...knobs, ...faders, ...encoders] as const;
+
+export function getControlByControlChange(cc: number): Control | undefined {
+    return controls.find((control) => control.cc === cc);
+}
