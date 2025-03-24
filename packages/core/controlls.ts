@@ -1,4 +1,35 @@
-export type ButtonName =
+/*
+
+Mapping of controls assumes the following:
+1. Order of controls is the same as you look
+at the K2 from the top right corner and enumerate
+controlrs from right to left to the end of the row.
+
+2. MIDI notes are stored for the debug purposes.
+It's easier to see what is going when you can
+make a connection between K2's documentation where
+MIDI notes are used (E1, C2, D#0 etc.) and button names.
+
+3. However, decimal MIDI notes are used to map controls,
+since MIDI device send them in that format.
+
+*/
+
+type UnlabeledButtonName =
+    | "button-1"
+    | "button-2"
+    | "button-3"
+    | "button-4"
+    | "button-5"
+    | "button-6"
+    | "button-7"
+    | "button-8"
+    | "button-9"
+    | "button-10"
+    | "button-11"
+    | "button-12"
+
+type LabeledButtonName =
     | "A"
     | "B"
     | "C"
@@ -17,19 +48,21 @@ export type ButtonName =
     | "P"
     | "layer"
     | "exit-setup"
+
+export type ButtonName =
     | "encoder-1"
     | "encoder-2"
     | "encoder-3"
     | "encoder-4"
+    | UnlabeledButtonName
+    | LabeledButtonName
     | "encoder-5"
     | "encoder-6"
 
 export type Button = {
     name: ButtonName;
+    note: string;
     midi: number;
-    red: string;
-    amber: string;
-    green: string;
 };
 
 export type StrippedButton = {
@@ -37,185 +70,192 @@ export type StrippedButton = {
     midi: number;
 };
 
-const colors = ["red", "amber", "green"] as const;
-export type Color = (typeof colors)[number];
-
 export const buttons: Button[] = [
     {
-        name: "A",
-        midi: 36,
-        red: "C2",
-        amber: "C5",
-        green: "C8",
-    },
-    {
-        name: "B",
-        midi: 37,
-        red: "C#2",
-        amber: "C#5",
-        green: "C#8",
-    },
-    {
-        name: "C",
-        midi: 38,
-        red: "D2",
-        amber: "D5",
-        green: "D8",
-    },
-    {
-        name: "D",
-        midi: 39,
-        red: "D#2",
-        amber: "D#5",
-        green: "D#8",
-    },
-    {
-        name: "E",
-        midi: 32,
-        red: "G#1",
-        amber: "G#4",
-        green: "G#7",
-    },
-    {
-        name: "F",
-        midi: 33,
-        red: "A1",
-        amber: "A4",
-        green: "A7",
-    },
-    {
-        name: "G",
-        midi: 34,
-        red: "A#1",
-        amber: "A#4",
-        green: "A#7",
-    },
-    {
-        name: "H",
-        midi: 35,
-        red: "B1",
-        amber: "B4",
-        green: "B7",
-    },
-    {
-        name: "I",
-        midi: 28,
-        red: "E1",
-        amber: "E4",
-        green: "E7",
-    },
-    {
-        name: "J",
-        midi: 29,
-        red: "F1",
-        amber: "F4",
-        green: "F7",
-    },
-    {
-        name: "K",
-        midi: 30,
-        red: "F#1",
-        amber: "F#4",
-        green: "F#7",
-    },
-    {
-        name: "L",
-        midi: 31,
-        red: "G1",
-        amber: "G4",
-        green: "G7",
-    },
-    {
-        name: "M",
-        midi: 24,
-        red: "C1",
-        amber: "C4",
-        green: "C7",
-    },
-    {
-        name: "N",
-        midi: 25,
-        red: "C#1",
-        amber: "C#4",
-        green: "C#7",
-    },
-    {
-        name: "O",
-        midi: 26,
-        red: "D1",
-        amber: "D4",
-        green: "D7",
-    },
-    {
-        name: "P",
-        midi: 27,
-        red: "D#1",
-        amber: "D#4",
-        green: "D#7",
-    },
-    {
-        name: "layer",
-        midi: 12,
-        red: "C0",
-        amber: "E0",
-        green: "G#0",
-    },
-    {
-        name: "exit-setup",
-        midi: 15,
-        red: "D#0",
-        amber: "G0",
-        green: "B0",
-    },
-    {
         name: "encoder-1",
-        // E3 @TODO: Translate MIDI Notes to Decimal
-        midi: 0,
-        red: "",
-        amber: "",
-        green: "",
+        note: "E3",
+        midi: 52,
     },
     {
         name: "encoder-2",
-        // F3
-        midi: 0,
-        red: "",
-        amber: "",
-        green: "",
+        note: "F3",
+        midi: 53,
     },
     {
         name: "encoder-3",
-        // F#3
-        midi: 0,
-        red: "",
-        amber: "",
-        green: "",
+        note: "F#3",
+        midi: 54,
     },
     {
         name: "encoder-4",
-        // G3
-        midi: 0,
-        red: "",
-        amber: "",
-        green: "",
+        note: "G3",
+        midi: 55,
+    },
+    {
+        name: "button-1",
+        note: "C3",
+        midi: 48,
+    },
+    {
+        name: "button-2",
+        note: "C#3",
+        midi: 49,
+    },
+    {
+        name: "button-3",
+        note: "D3",
+        midi: 50,
+    },
+    {
+        name: "button-4",
+        note: "D#3",
+        midi: 51,
+    },
+    {
+        name: "button-5",
+        note: "G#2",
+        midi: 44,
+    },
+    {
+        name: "button-6",
+        note: "A2",
+        midi: 45,
+    },
+    {
+        name: "button-7",
+        note: "A#2",
+        midi: 46,
+    },
+    {
+        name: "button-8",
+        note: "B2",
+        midi: 47,
+    },
+    {
+        name: "button-9",
+        note: "E2",
+        midi: 40,
+    },
+    {
+        name: "button-10",
+        note: "F2",
+        midi: 41,
+    },
+    {
+        name: "button-11",
+        note: "F#2",
+        midi: 42,
+    },
+    {
+        name: "button-12",
+        note: "G2",
+        midi: 43,
+    },
+    {
+        name: "A",
+        note: "C2",
+        midi: 36,
+    },
+    {
+        name: "B",
+        note: "C#2",
+        midi: 37,
+    },
+    {
+        name: "C",
+        note: "D2",
+        midi: 38,
+    },
+    {
+        name: "D",
+        note: "D#2",
+        midi: 39,
+    },
+    {
+        name: "E",
+        note: "G#1",
+        midi: 32,
+    },
+    {
+        name: "F",
+        note: "A1",
+        midi: 33,
+    },
+    {
+        name: "G",
+        note: "A#1",
+        midi: 34,
+    },
+    {
+        name: "H",
+        note: "B1",
+        midi: 35,
+    },
+    {
+        name: "I",
+        note: "E1",
+        midi: 28,
+    },
+    {
+        name: "J",
+        note: "F1",
+        midi: 29,
+    },
+    {
+        name: "K",
+        note: "F#1",
+        midi: 30,
+    },
+    {
+        name: "L",
+        note: "G1",
+        midi: 31,
+    },
+    {
+        name: "M",
+        note: "C1",
+        midi: 24,
+    },
+    {
+        name: "N",
+        note: "C#1",
+        midi: 25,
+    },
+    {
+        name: "O",
+        note: "D1",
+        midi: 26,
+    },
+    {
+        name: "P",
+        note: "D#1",
+        midi: 27,
+    },
+    {
+        name: "layer",
+        note: "C0",
+        midi: 12,
     },
     {
         name: "encoder-5",
-        // C#0
-        midi: 0,
-        red: "",
-        amber: "",
-        green: "",
+        note: "C#0",
+        midi: 13,
     },
     {
         name: "encoder-6",
-        // D0
-        midi: 0,
-        red: "",
-        amber: "",
-        green: "",
+        note: "D0",
+        midi: 14,
     },
+    {
+        name: "exit-setup",
+        note: "D#0",
+        midi: 15,
+    }
 ] as const;
+
+export function getButtonByMidi(midi: number): Button | undefined {
+    return buttons.find((button) => button.midi === midi);
+}
 
 export type Knob = {
     name: 'knob-1' | 'knob-2' | 'knob-3' | 'knob-4' | 'knob-5' | 'knob-6' | 'knob-7' | 'knob-8' | 'knob-9' | 'knob-10' | 'knob-11' | 'knob-12'
@@ -328,5 +368,158 @@ export const encoders: Encoder[] = [
         cc: 21,
     },
 ];
+
+export type LedName =
+    | "encoder-1"
+    | "encoder-2"
+    | "encoder-3"
+    | "encoder-4"
+    | UnlabeledButtonName
+    | LabeledButtonName
+
+const colors = ["red", "amber", "green"] as const;
+export type Color = (typeof colors)[number];
+
+export type LED = {
+    name: LedName;
+    amber: string;
+    red: string;
+    green: string;
+};
+
+export const leds: LED[] = [
+    {
+        name: "encoder-1",
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-2",
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-3",
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "encoder-4",
+        red: "",
+        amber: "",
+        green: "",
+    },
+    {
+        name: "A",
+        red: "C2",
+        amber: "C5",
+        green: "C8",
+    },
+    {
+        name: "B",
+        red: "C#2",
+        amber: "C#5",
+        green: "C#8",
+    },
+    {
+        name: "C",
+        red: "D2",
+        amber: "D5",
+        green: "D8",
+    },
+    {
+        name: "D",
+        red: "D#2",
+        amber: "D#5",
+        green: "D#8",
+    },
+    {
+        name: "E",
+        red: "G#1",
+        amber: "G#4",
+        green: "G#7",
+    },
+    {
+        name: "F",
+        red: "A1",
+        amber: "A4",
+        green: "A7",
+    },
+    {
+        name: "G",
+        red: "A#1",
+        amber: "A#4",
+        green: "A#7",
+    },
+    {
+        name: "H",
+        red: "B1",
+        amber: "B4",
+        green: "B7",
+    },
+    {
+        name: "I",
+        red: "E1",
+        amber: "E4",
+        green: "E7",
+    },
+    {
+        name: "J",
+        red: "F1",
+        amber: "F4",
+        green: "F7",
+    },
+    {
+        name: "K",
+        red: "F#1",
+        amber: "F#4",
+        green: "F#7",
+    },
+    {
+        name: "L",
+        red: "G1",
+        amber: "G4",
+        green: "G7",
+    },
+    {
+        name: "M",
+        red: "C1",
+        amber: "C4",
+        green: "C7",
+    },
+    {
+        name: "N",
+        red: "C#1",
+        amber: "C#4",
+        green: "C#7",
+    },
+    {
+        name: "O",
+        red: "D1",
+        amber: "D4",
+        green: "D7",
+    },
+    {
+        name: "P",
+        red: "D#1",
+        amber: "D#4",
+        green: "D#7",
+    },
+    {
+        name: "layer",
+        red: "C0",
+        amber: "E0",
+        green: "G#0",
+    },
+    {
+        name: "exit-setup",
+        red: "D#0",
+        amber: "G0",
+        green: "B0",
+    },
+] as const;
 
 export const controls = [...knobs, ...faders, ...encoders] as const;
