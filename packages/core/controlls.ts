@@ -65,6 +65,7 @@ export type Button = {
     midi: number;
 };
 
+// @TODO: remove
 export type StrippedButton = {
     name: ButtonName;
     midi: number;
@@ -390,27 +391,99 @@ export type LED = {
 export const leds: LED[] = [
     {
         name: "encoder-1",
-        red: "",
-        amber: "",
-        green: "",
+        red: "E3",
+        amber: "E6",
+        green: "E9",
     },
     {
         name: "encoder-2",
-        red: "",
-        amber: "",
-        green: "",
+        red: "F3",
+        amber: "F6",
+        green: "F9",
     },
     {
         name: "encoder-3",
-        red: "",
-        amber: "",
-        green: "",
+        red: "F#3",
+        amber: "F#6",
+        green: "F#9",
     },
     {
         name: "encoder-4",
-        red: "",
-        amber: "",
-        green: "",
+        red: "G3",
+        amber: "G6",
+        green: "G9",
+    },
+    {
+        name: "button-1",
+        red: "C3",
+        amber: "C6",
+        green: "C9",
+    },
+    {
+        name: "button-2",
+        red: "C#3",
+        amber: "C#6",
+        green: "C#9",
+    },
+    {
+        name: "button-3",
+        red: "D3",
+        amber: "D6",
+        green: "D9",
+    },
+    {
+        name: "button-4",
+        red: "D#3",
+        amber: "D#6",
+        green: "D#9",
+    },
+    {
+        name: "button-5",
+        red: "G#2",
+        amber: "G#5",
+        green: "G#8",
+    },
+    {
+        name: "button-6",
+        red: "A2",
+        amber: "A5",
+        green: "A8",
+    },
+    {
+        name: "button-7",
+        red: "A#2",
+        amber: "A#5",
+        green: "A#8",
+    },
+    {
+        name: "button-8",
+        red: "B2",
+        amber: "B5",
+        green: "B8",
+    },
+    {
+        name: "button-9",
+        red: "E2",
+        amber: "E5",
+        green: "E8",
+    },
+    {
+        name: "button-10",
+        red: "F2",
+        amber: "F5",
+        green: "F8",
+    },
+    {
+        name: "button-11",
+        red: "F#2",
+        amber: "F#5",
+        green: "F#8",
+    },
+    {
+        name: "button-12",
+        red: "G2",
+        amber: "G5",
+        green: "G8",
     },
     {
         name: "A",
@@ -521,5 +594,9 @@ export const leds: LED[] = [
         green: "B0",
     },
 ] as const;
+
+export function getLedByName(name: LedName): LED | undefined {
+    return leds.find((led) => led.name === name);
+}
 
 export const controls = [...knobs, ...faders, ...encoders] as const;

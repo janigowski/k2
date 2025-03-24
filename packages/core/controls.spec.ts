@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buttons, encoders, faders, getButtonByMidi, knobs, leds } from "./controlls";
+import { buttons, encoders, faders, getButtonByMidi, getLedByName, knobs, leds, type LedName } from "./controlls";
 
 describe("Controls", () => {
     it("should have 36 buttons", () => {
@@ -18,11 +18,11 @@ describe("Controls", () => {
         expect(encoders.length).toBe(6);
     })
 
-    it.skip("should have 34 LEDs", () => {
+    it("should have 34 LEDs", () => {
         expect(leds.length).toBe(34);
     })
 
-    it("should map button names to midi numbers", () => {
+    it("should map button names to MIDI numbers", () => {
         const buttonsMap = [
             { name: "encoder-1", note: 'E3', midi: 52 },
             { name: "encoder-2", note: 'F3', midi: 53 },
@@ -67,6 +67,224 @@ describe("Controls", () => {
             const button = getButtonByMidi(item.midi);
 
             expect(button?.midi).toBe(item.midi);
+        });
+    });
+
+    it("should map LED names to colors", () => {
+        const ledsMap: { name: LedName, red: string, amber: string, green: string }[] = [
+            {
+                name: "encoder-1",
+                red: "E3",
+                amber: "E6",
+                green: "E9",
+            },
+            {
+                name: "encoder-2",
+                red: "F3",
+                amber: "F6",
+                green: "F9",
+            },
+            {
+                name: "encoder-3",
+                red: "F#3",
+                amber: "F#6",
+                green: "F#9",
+            },
+            {
+                name: "encoder-4",
+                red: "G3",
+                amber: "G6",
+                green: "G9",
+            },
+            {
+                name: "button-1",
+                red: "C3",
+                amber: "C6",
+                green: "C9",
+            },
+            {
+                name: "button-2",
+                red: "C#3",
+                amber: "C#6",
+                green: "C#9",
+            },
+            {
+                name: "button-3",
+                red: "D3",
+                amber: "D6",
+                green: "D9",
+            },
+            {
+                name: "button-4",
+                red: "D#3",
+                amber: "D#6",
+                green: "D#9",
+            },
+            {
+                name: "button-5",
+                red: "G#2",
+                amber: "G#5",
+                green: "G#8",
+            },
+            {
+                name: "button-6",
+                red: "A2",
+                amber: "A5",
+                green: "A8",
+            },
+            {
+                name: "button-7",
+                red: "A#2",
+                amber: "A#5",
+                green: "A#8",
+            },
+            {
+                name: "button-8",
+                red: "B2",
+                amber: "B5",
+                green: "B8",
+            },
+            {
+                name: "button-9",
+                red: "E2",
+                amber: "E5",
+                green: "E8",
+            },
+            {
+                name: "button-10",
+                red: "F2",
+                amber: "F5",
+                green: "F8",
+            },
+            {
+                name: "button-11",
+                red: "F#2",
+                amber: "F#5",
+                green: "F#8",
+            },
+            {
+                name: "button-12",
+                red: "G2",
+                amber: "G5",
+                green: "G8",
+            },
+            {
+                name: "A",
+                red: "C2",
+                amber: "C5",
+                green: "C8",
+            },
+            {
+                name: "B",
+                red: "C#2",
+                amber: "C#5",
+                green: "C#8",
+            },
+            {
+                name: "C",
+                red: "D2",
+                amber: "D5",
+                green: "D8",
+            },
+            {
+                name: "D",
+                red: "D#2",
+                amber: "D#5",
+                green: "D#8",
+            },
+            {
+                name: "E",
+                red: "G#1",
+                amber: "G#4",
+                green: "G#7",
+            },
+            {
+                name: "F",
+                red: "A1",
+                amber: "A4",
+                green: "A7",
+            },
+            {
+                name: "G",
+                red: "A#1",
+                amber: "A#4",
+                green: "A#7",
+            },
+            {
+                name: "H",
+                red: "B1",
+                amber: "B4",
+                green: "B7",
+            },
+            {
+                name: "I",
+                red: "E1",
+                amber: "E4",
+                green: "E7",
+            },
+            {
+                name: "J",
+                red: "F1",
+                amber: "F4",
+                green: "F7",
+            },
+            {
+                name: "K",
+                red: "F#1",
+                amber: "F#4",
+                green: "F#7",
+            },
+            {
+                name: "L",
+                red: "G1",
+                amber: "G4",
+                green: "G7",
+            },
+            {
+                name: "M",
+                red: "C1",
+                amber: "C4",
+                green: "C7",
+            },
+            {
+                name: "N",
+                red: "C#1",
+                amber: "C#4",
+                green: "C#7",
+            },
+            {
+                name: "O",
+                red: "D1",
+                amber: "D4",
+                green: "D7",
+            },
+            {
+                name: "P",
+                red: "D#1",
+                amber: "D#4",
+                green: "D#7",
+            },
+            {
+                name: "layer",
+                red: "C0",
+                amber: "E0",
+                green: "G#0",
+            },
+            {
+                name: "exit-setup",
+                red: "D#0",
+                amber: "G0",
+                green: "B0",
+            },
+        ]
+
+
+        ledsMap.forEach((item) => {
+            const led = getLedByName(item.name);
+
+            expect(led?.red).toBe(item.red);
+            expect(led?.amber).toBe(item.amber);
+            expect(led?.green).toBe(item.green);
         });
     });
 });
