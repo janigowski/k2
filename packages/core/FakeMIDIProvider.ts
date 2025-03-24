@@ -78,9 +78,6 @@ export class FakeMIDIOutput implements MIDIOutput {
         this.channel = channel
     }
 
-    send(data: number[]): void {
-    }
-
     sendNoteOn(note: string, velocity: number): void {
     }
 

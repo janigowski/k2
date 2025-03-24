@@ -59,7 +59,6 @@ export interface MIDIOutput {
 
     setChannel(channel: number): void
 
-    send(data: number[]): void
     sendNoteOn(note: string, velocity: number): void
     sendNoteOff(note: string): void
 }
