@@ -54,8 +54,6 @@ export class K2 {
             const input = this.provider.getInput({ name: 'XONE:K2', channel: this.channel })
             const output = this.provider.getOutput({ name: 'XONE:K2', channel: this.channel })
 
-            console.log({ input, output })
-
             if (input) {
                 this.input = input
                 this.attachInputEvents()

@@ -49,8 +49,6 @@ describe("WebMIDI Library with Multiple Devices", () => {
         const input = midiAccess.inputs.values().next().value;
         const output = midiAccess.outputs.values().next().value;
 
-        console.log({ input, output });
-
         const onMessage = vi.fn();
         input?.addEventListener("midimessage", onMessage);
 
