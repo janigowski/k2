@@ -20,9 +20,11 @@
 
 <div class="led-container">
   <button
-    class="led"
+    class="led clickable"
     style="--led-color: {colors[color]}"
     on:click={handleClick}
+    aria-label={`LED ${id}, currently ${color}`}
+    title="Click to change LED color"
   ></button>
 </div>
 
@@ -48,6 +50,7 @@
     appearance: none;
     -webkit-appearance: none;
     outline: none;
+    transition: all 0.1s ease;
   }
 
   .led::after {
@@ -60,12 +63,18 @@
     background-color: var(--led-color, transparent);
     opacity: 0.3;
     border-radius: 3px;
+    transition: opacity 0.1s ease;
   }
 
-  .led:hover {
+  .led.clickable:hover {
     box-shadow:
       inset 0 0 10px var(--led-color, transparent),
-      0 0 5px var(--led-color, transparent);
+      0 0 8px 2px var(--led-color, rgba(255, 255, 255, 0.5));
+    transform: scale(1.05);
+  }
+
+  .led.clickable:hover::after {
+    opacity: 0.5;
   }
 
   .led:active {

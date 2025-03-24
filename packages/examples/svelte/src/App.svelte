@@ -107,7 +107,21 @@
     events = [message, ...events];
   }
 
-  // Handle button click on K2Surface
+  // MIDI integration
+  const channel = 2;
+  const browserMIDIProvider = new BrowserMIDIProvider();
+  let k2: K2;
+  let isConnected = false;
+
+  // Color cycle for UI interactions
+  const colorCycle: Array<"off" | "red" | "green" | "amber"> = [
+    "off",
+    "red",
+    "green",
+    "amber",
+  ];
+
+  // Handle UI button clicks
   function handleButtonClick(event: CustomEvent<{ id: string }>) {
     const { id } = event.detail;
 
@@ -115,13 +129,41 @@
     if (id in buttonColors) {
       const colorIndex = colorCycle.indexOf(buttonColors[id]);
       const nextColorIndex = (colorIndex + 1) % colorCycle.length;
+      const newColor = colorCycle[nextColorIndex];
 
-      buttonColors[id] = colorCycle[nextColorIndex];
+      buttonColors[id] = newColor;
       buttonColors = { ...buttonColors }; // Trigger reactivity
 
-      handleEvent(`Button clicked: ${id}, new color: ${buttonColors[id]}`);
+      handleEvent(`UI: Button clicked: ${id}, new color: ${newColor}`);
 
-      // If it's an encoder button, toggle the active state
+      // If it's an encoder button 1-4, also update the corresponding LED
+      if (id.startsWith("encoder-") && parseInt(id.split("-")[1]) <= 4) {
+        const encoderNum = id.split("-")[1];
+        const ledId = `led-${encoderNum}`;
+
+        // Update LED color in UI
+        ledColors[ledId] = newColor;
+        ledColors = { ...ledColors }; // Trigger reactivity
+
+        // Only send LED command if we're connected to MIDI
+        if (isConnected && k2) {
+          try {
+            if (newColor === "off") {
+              // Turn off the LED on the physical device
+              k2.unhighlightLED(id as any);
+              handleEvent(`MIDI: Turned off LED for ${id}`);
+            } else {
+              // Highlight the LED on the physical device
+              k2.highlightLED(id as any, newColor);
+              handleEvent(`MIDI: Set LED for ${id} to ${newColor}`);
+            }
+          } catch (error) {
+            handleEvent(`MIDI error: ${error}`);
+          }
+        }
+      }
+
+      // If it's an encoder button, activate it temporarily for visual feedback
       if (id.startsWith("encoder-")) {
         const encoderNumber = id.split("-")[1];
         const key = `encoder${encoderNumber}`;
@@ -137,23 +179,11 @@
             encoderActives = { ...encoderActives }; // Trigger reactivity
           }, 300);
         }
-
-        // Also toggle the corresponding LED
-        if (encoderNumber && parseInt(encoderNumber) <= 4) {
-          const ledId = `led-${encoderNumber}`;
-          const ledColorIndex = colorCycle.indexOf(ledColors[ledId]);
-          const nextLedColorIndex = (ledColorIndex + 1) % colorCycle.length;
-
-          ledColors[ledId] = colorCycle[nextLedColorIndex];
-          ledColors = { ...ledColors }; // Trigger reactivity
-
-          handleEvent(`LED toggled: ${ledId}, new color: ${ledColors[ledId]}`);
-        }
       }
     }
   }
 
-  // Handle LED click on K2Surface
+  // Handle LED clicks in UI
   function handleLedClick(event: CustomEvent<{ id: string }>) {
     const { id } = event.detail;
 
@@ -161,27 +191,37 @@
     if (id in ledColors) {
       const colorIndex = colorCycle.indexOf(ledColors[id]);
       const nextColorIndex = (colorIndex + 1) % colorCycle.length;
+      const newColor = colorCycle[nextColorIndex];
 
-      ledColors[id] = colorCycle[nextColorIndex];
+      ledColors[id] = newColor;
       ledColors = { ...ledColors }; // Trigger reactivity
 
-      handleEvent(`LED clicked: ${id}, new color: ${ledColors[id]}`);
+      handleEvent(`UI: LED clicked: ${id}, new color: ${newColor}`);
+
+      // Send MIDI message if connected
+      if (isConnected && k2) {
+        try {
+          // Extract the encoder number from the LED id (led-1 -> 1)
+          const encoderNum = id.split("-")[1];
+          const encoderId = `encoder-${encoderNum}`;
+
+          if (newColor === "off") {
+            // Turn off the LED on the physical device
+            k2.unhighlightLED(encoderId as any);
+            handleEvent(`MIDI: Turned off LED for encoder-${encoderNum}`);
+          } else {
+            // Highlight the LED on the physical device
+            k2.highlightLED(encoderId as any, newColor);
+            handleEvent(
+              `MIDI: Set LED for encoder-${encoderNum} to ${newColor}`
+            );
+          }
+        } catch (error) {
+          handleEvent(`MIDI error: ${error}`);
+        }
+      }
     }
   }
-
-  // Color cycle for buttons
-  const colorCycle: Array<"off" | "red" | "green" | "amber"> = [
-    "off",
-    "red",
-    "green",
-    "amber",
-  ];
-
-  // MIDI integration (similar to K2Controller)
-  const channel = 2;
-  const browserMIDIProvider = new BrowserMIDIProvider();
-  let k2: K2;
-  let isConnected = false;
 
   onMount(async () => {
     try {
@@ -190,22 +230,46 @@
 
       k2.on("connect", () => {
         isConnected = true;
-        handleEvent("K2 connected");
+        handleEvent("MIDI: K2 controller connected");
       });
 
       k2.on("connectionError", (event: unknown) => {
         const error = event as { message: string };
         isConnected = false;
-        handleEvent(`Connection error: ${error.message}`);
+        handleEvent(`MIDI: Connection error: ${error.message}`);
       });
 
       k2.on("button.press", (button: { name: ButtonName }) => {
-        handleEvent(`Button pressed: ${button.name}`);
+        handleEvent(`MIDI: Button pressed: ${button.name}`);
 
-        // Highlight the button (if it's in our map)
+        // Highlight the button in UI (if it's in our map)
         if (button.name in buttonColors) {
-          buttonColors[button.name] = "red"; // Default to red when pressed via MIDI
+          // Toggle button color instead of just setting to red
+          const colorIndex = colorCycle.indexOf(buttonColors[button.name]);
+          const nextColorIndex = (colorIndex + 1) % colorCycle.length;
+          const newColor = colorCycle[nextColorIndex];
+
+          buttonColors[button.name] = newColor;
           buttonColors = { ...buttonColors }; // Trigger reactivity
+
+          handleEvent(`MIDI: Button ${button.name} toggled to ${newColor}`);
+
+          // If it's an encoder button 1-4, also update the corresponding LED
+          if (
+            button.name.startsWith("encoder-") &&
+            parseInt(button.name.split("-")[1]) <= 4
+          ) {
+            const encoderNum = button.name.split("-")[1];
+            const ledId = `led-${encoderNum}`;
+
+            // Update LED in UI
+            ledColors[ledId] = newColor;
+            ledColors = { ...ledColors }; // Trigger reactivity
+
+            handleEvent(
+              `MIDI: LED ${ledId} updated to match button ${button.name}`
+            );
+          }
         }
 
         // If it's an encoder button, set active state
@@ -217,18 +281,11 @@
             encoderActives[key as keyof typeof encoderActives] = true;
             encoderActives = { ...encoderActives }; // Trigger reactivity
           }
-
-          // Also toggle LED for encoders 1-4
-          if (encoderNumber && parseInt(encoderNumber) <= 4) {
-            const ledId = `led-${encoderNumber}`;
-            ledColors[ledId] = "red"; // Default to red
-            ledColors = { ...ledColors }; // Trigger reactivity
-          }
         }
       });
 
       k2.on("button.release", (button: { name: ButtonName }) => {
-        handleEvent(`Button released: ${button.name}`);
+        handleEvent(`MIDI: Button released: ${button.name}`);
 
         // If it's an encoder button, reset the active state
         if (button.name.startsWith("encoder-")) {
@@ -251,7 +308,7 @@
           knobValues[`knob${knobNumber}` as keyof typeof knobValues] =
             knob.value;
           knobValues = { ...knobValues };
-          handleEvent(`Knob changed: ${knob.name} ${knob.value}`);
+          handleEvent(`MIDI: Knob changed: ${knob.name} ${knob.value}`);
         }
       });
 
@@ -261,7 +318,7 @@
           faderValues[`fader${faderNumber}` as keyof typeof faderValues] =
             fader.value;
           faderValues = { ...faderValues };
-          handleEvent(`Fader changed: ${fader.name} ${fader.value}`);
+          handleEvent(`MIDI: Fader changed: ${fader.name} ${fader.value}`);
         }
       });
 
@@ -271,7 +328,7 @@
         if (encoderNumber && key in encoderValues) {
           encoderValues[key] = encoderValues[key] + encoder.value * 0.1;
           encoderValues = { ...encoderValues };
-          handleEvent(`Encoder turned: ${encoder.name} ${encoder.value}`);
+          handleEvent(`MIDI: Encoder turned: ${encoder.name} ${encoder.value}`);
         }
       });
 
@@ -361,10 +418,20 @@
   </div>
 
   <div class="events">
-    <h2>MIDI Events</h2>
+    <h2>Events</h2>
     <div class="event-list">
       {#each events as event}
-        <div>{event}</div>
+        <div
+          class={event.startsWith("UI:")
+            ? "ui-event"
+            : event.startsWith("MIDI:")
+              ? "midi-event"
+              : event.startsWith("DEBUG:")
+                ? "debug-event"
+                : "other-event"}
+        >
+          {event}
+        </div>
       {/each}
     </div>
   </div>
@@ -403,10 +470,36 @@
     min-height: 200px;
     color: #000;
     font-family: monospace;
+    text-align: left;
   }
 
   .event-list {
     max-height: 300px;
     overflow-y: auto;
+  }
+
+  .event-list div {
+    padding: 4px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+
+  .ui-event {
+    background-color: #e6f7ff;
+    border-left: 3px solid #1890ff;
+  }
+
+  .midi-event {
+    background-color: #f6ffed;
+    border-left: 3px solid #52c41a;
+  }
+
+  .debug-event {
+    background-color: #fff7e6;
+    border-left: 3px solid #faad14;
+  }
+
+  .other-event {
+    background-color: #f9f9f9;
   }
 </style>
