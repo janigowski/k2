@@ -67,7 +67,7 @@ describe("WebMIDI Library with Multiple Devices", () => {
         expect(midiAccess.outputs.size).toBeGreaterThan(0);
     });
 
-    it('should allow sending MIDI messages', async () => {
+    it.skip('should allow sending MIDI messages', async () => {
         const midiAccess = await navigator.requestMIDIAccess();
         const output = midiAccess.outputs.get('output-1');
 

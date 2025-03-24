@@ -278,57 +278,87 @@ export function getButtonByMidi(midi: number): Button | undefined {
     return buttons.find((button) => button.midi === midi);
 }
 
-export type Knob = {
-    name: KnobName
+export type ControlType = "knob" | "fader" | "encoder";
+
+export interface BaseControl {
+    type: ControlType;
+    name: string;
     cc: number;
-};
+}
+
+export interface Knob extends BaseControl {
+    type: "knob";
+    name: KnobName;
+}
+
+export interface Fader extends BaseControl {
+    type: "fader";
+    name: FaderName;
+}
+
+export interface Encoder extends BaseControl {
+    type: "encoder";
+    name: EncoderName;
+}
 
 export const knobs: Knob[] = [
     {
+        type: "knob",
         name: "knob-1",
         cc: 4,
     },
     {
+        type: "knob",
         name: "knob-2",
         cc: 5,
     },
     {
+        type: "knob",
         name: "knob-3",
         cc: 6,
     },
     {
+        type: "knob",
         name: "knob-4",
         cc: 7,
     },
     {
+        type: "knob",
         name: "knob-5",
         cc: 8,
     },
     {
+        type: "knob",
         name: "knob-6",
         cc: 9,
     },
     {
+        type: "knob",
         name: "knob-7",
         cc: 10,
     },
     {
+        type: "knob",
         name: "knob-8",
         cc: 11,
     },
     {
+        type: "knob",
         name: "knob-9",
         cc: 12,
     },
     {
+        type: "knob",
         name: "knob-10",
         cc: 13,
     },
     {
+        type: "knob",
         name: "knob-11",
         cc: 14,
     },
     {
+        type: "knob",
         name: "knob-12",
         cc: 15,
     }
@@ -338,25 +368,24 @@ export function getKnobByControlChange(cc: number): Knob | undefined {
     return knobs.find((knob) => knob.cc === cc);
 }
 
-export type Fader = {
-    name: FaderName;
-    cc: number;
-};
-
 export const faders: Fader[] = [
     {
+        type: "fader",
         name: "fader-1",
         cc: 16,
     },
     {
+        type: "fader",
         name: "fader-2",
         cc: 17,
     },
     {
+        type: "fader",
         name: "fader-3",
         cc: 18,
     },
     {
+        type: "fader",
         name: "fader-4",
         cc: 19,
     },
@@ -366,33 +395,34 @@ export function getFaderByControlChange(cc: number): Fader | undefined {
     return faders.find((fader) => fader.cc === cc);
 }
 
-export type Encoder = {
-    name: EncoderName;
-    cc: number;
-};
-
 export const encoders: Encoder[] = [
     {
+        type: "encoder",
         name: "encoder-1",
         cc: 0,
     },
     {
+        type: "encoder",
         name: "encoder-2",
         cc: 1,
     },
     {
+        type: "encoder",
         name: "encoder-3",
         cc: 2,
     },
     {
+        type: "encoder",
         name: "encoder-4",
         cc: 3,
     },
     {
+        type: "encoder",
         name: "encoder-5",
         cc: 20,
     },
     {
+        type: "encoder",
         name: "encoder-6",
         cc: 21,
     },
@@ -627,11 +657,14 @@ export const leds: LED[] = [
     },
 ] as const;
 
+
+// @TODO: Do wee need underfined if our LED array is defined as const?
 export function getLedByName(name: LedName): LED | undefined {
     return leds.find((led) => led.name === name);
 }
 
-type Control = Knob | Fader | Encoder;
+export type Control = Knob | Fader | Encoder;
+
 const controls: Control[] = [...knobs, ...faders, ...encoders] as const;
 
 export function getControlByControlChange(cc: number): Control | undefined {

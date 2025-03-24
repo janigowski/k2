@@ -35,6 +35,7 @@ export class K2 {
     private input?: MIDIInput
     private output?: MIDIOutput
     private state: K2State = K2State.Disconnected
+    public debug = false
 
     constructor(private channel: Channel, public provider: MIDIProvider) {
         this.emitter = mitt()
@@ -77,7 +78,7 @@ export class K2 {
 
     private attachInputEvents() {
         if (this.input) {
-            this.input.on('note.on', ({ note, velocity }) => {
+            this.input.on('note.on', ({ note }) => {
                 const button = getButtonByMidi(note);
 
                 if (button) {
@@ -85,7 +86,7 @@ export class K2 {
                 }
             })
 
-            this.input.on('note.off', ({ note, velocity }) => {
+            this.input.on('note.off', ({ note }) => {
                 const button = getButtonByMidi(note);
 
                 if (button) {
@@ -97,16 +98,29 @@ export class K2 {
                 const control = getControlByControlChange(cc);
                 const maxValue = 127
 
-                if (control?.name.includes('fader')) {
-                    this.emitter.emit('fader.change', { name: control.name, value: value / maxValue });
-                }
+                if (control) {
+                    const { name, type } = control
+                    const normalized = value / maxValue
 
-                if (control?.name.includes('knob')) {
-                    this.emitter.emit('knob.change', { name: control.name, value: value / maxValue });
-                }
+                    switch (type) {
+                        case 'encoder':
+                            const direction = value === maxValue ? 1 : -1
+                            this.emitter.emit('encoder.turn', { name, value: direction });
+                            break;
 
-                if (control?.name.includes('encoder')) {
-                    this.emitter.emit('encoder.turn', { name: control.name, value: value === maxValue ? 1 : -1 });
+                        case 'fader':
+                            this.emitter.emit('fader.change', { name, value: normalized });
+                            break;
+
+                        case 'knob':
+                            this.emitter.emit('knob.change', { name, value: normalized });
+                            break;
+                    }
+                } else {
+                    if (this.debug) {
+                        // @TODO: use debug
+                        console.log('Control does not exist: ', { cc, value });
+                    }
                 }
             })
         }
