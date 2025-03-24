@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buttons, encoders, faders, getButtonByMidi, getEncoderByControlChange, getFaderByControlChange, getLedByName, knobs, leds, type LedName } from "./controlls";
+import { buttons, encoders, faders, getButtonByMidi, getEncoderByControlChange, getFaderByControlChange, getKnobByControlChange, getLedByName, knobs, leds, type LedName } from "./controlls";
 
 describe("Controls", () => {
     it("should have 36 buttons", () => {
@@ -319,6 +319,30 @@ describe("Controls", () => {
             const fader = getFaderByControlChange(item.cc);
 
             expect(fader?.name).toBe(item.name);
+        });
+    });
+
+    it("should map Knobs Control Change number to names", () => {
+        const knobsMap = [
+            { name: "knob-1", cc: 4 },
+            { name: "knob-2", cc: 5 },
+            { name: "knob-3", cc: 6 },
+            { name: "knob-4", cc: 7 },
+            { name: "knob-5", cc: 8 },
+            { name: "knob-6", cc: 9 },
+            { name: "knob-7", cc: 10 },
+            { name: "knob-8", cc: 11 },
+            { name: "knob-9", cc: 12 },
+            { name: "knob-10", cc: 13 },
+            { name: "knob-11", cc: 14 },
+            { name: "knob-12", cc: 15 },
+        ];
+
+
+        knobsMap.forEach((item) => {
+            const knob = getKnobByControlChange(item.cc);
+
+            expect(knob?.name).toBe(item.name);
         });
     });
 });

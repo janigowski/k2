@@ -314,6 +314,10 @@ export const knobs: Knob[] = [
     }
 ];
 
+export function getKnobByControlChange(cc: number): Knob | undefined {
+    return knobs.find((knob) => knob.cc === cc);
+}
+
 export type Fader = {
     name: string;
     cc: number;
