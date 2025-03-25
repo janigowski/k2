@@ -2,11 +2,7 @@
   export let value = 0; // Range from 0 to 1
   export let id = "";
 
-  // Convert value to rotation in degrees
-  // 7 o'clock = 0 (210 degrees)
-  // 5 o'clock = 1 (150 degrees)
-  // Total range is 300 degrees, moving clockwise
-  $: rotation = 210 - value * 300;
+  $: rotation = value * 310 - 150;
 </script>
 
 <div class="knob-container">
@@ -28,7 +24,7 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background-color: #111;
+    background-color: #222;
     border: 1px solid #555;
     position: relative;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.7);
@@ -36,12 +32,13 @@
 
   .indicator {
     position: absolute;
-    top: 4px;
+    top: 0;
     left: 50%;
     transform-origin: bottom center;
-    width: 2px;
-    height: 10px;
+    width: 3px;
+    height: 14px;
     background-color: #fff;
-    margin-left: -1px;
+    margin-left: -1.5px;
+    border-radius: 1.5px;
   }
 </style>
