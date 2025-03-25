@@ -1,5 +1,6 @@
 import type { MIDIEventName, MIDIEventTypes, MIDIIdentifierOptions, MIDIInput, MIDIOutput, MIDIProvider } from "../interfaces/MIDIProvider";
 import { BrowserMIDIInput } from "./BrowserMIDIInput";
+import { BrowserMIDIOutput } from "./BrowserMIDIOutput";
 
 export class BrowserMIDIProvider implements MIDIProvider {
     private midiAccess!: WebMidi.MIDIAccess
@@ -37,13 +38,13 @@ export class BrowserMIDIProvider implements MIDIProvider {
     getOutput(options: MIDIIdentifierOptions): MIDIOutput | undefined {
         const key = this.getPortKey(options)
 
-        // if (!this.outputs[key]) {
-        //     const output = Array.from(this.midiAccess.outputs.values()).find(item => item.name === options.name)
+        if (!this.outputs[key]) {
+            const output = Array.from(this.midiAccess.outputs.values()).find(item => item.name === options.name)
 
-        //     if (output) {
-        //         this.setOutput(options, new BrowserMIDIOutput(options.name || 'Unknown', output))
-        //     }
-        // }
+            if (output) {
+                this.setOutput(options, new BrowserMIDIOutput(options.name || 'Unknown', options.channel, output))
+            }
+        }
 
         return this.outputs[key]
     }

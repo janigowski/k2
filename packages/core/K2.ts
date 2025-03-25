@@ -1,7 +1,10 @@
 import type { Channel } from "./types";
 import mitt, { type Emitter, type Handler } from "mitt";
-import { type Button, type Color, getButtonByMidi, type LedName, getLedByName, getControlByControlChange, type Knob, type Fader, type Encoder } from "./controlls";
+import { type Button, type Color, getButtonByMidi, type LedName, getLedByName, getControlByControlChange, type Knob, type Fader, type Encoder, leds } from "./controlls";
 import type { MIDIInput, MIDIOutput, MIDIProvider } from "./interfaces/MIDIProvider";
+import debug from 'debug'
+
+const log = debug('k2')
 
 export type ButtonEvent = Button
 export type EncoderEvent = { name: Encoder['name'], value: -1 | 1 }
@@ -129,6 +132,8 @@ export class K2 {
     highlightLED(name: LedName, color: Color) {
         const led = getLedByName(name)
 
+        log('highlightLED', name, color, this.output)
+
         if (!led) {
             console.error(`LED ${name} not found`);
             return;
@@ -141,12 +146,23 @@ export class K2 {
     unhighlightLED(name: LedName) {
         const led = getLedByName(name);
 
+        log('unhighlightLED', name, this.output)
+
         if (!led) {
             console.error(`LED ${name} not found`);
             return;
         }
 
         const anyColor = 'green'
-        this.output?.sendNoteOff(led[anyColor]);
+        this.output?.sendNoteOff(led[anyColor], 0);
+    }
+
+    unhighlightAllLEDs() {
+        log('unhighlightLED')
+
+        leds.forEach((led) => {
+            const anyColor = 'green'
+            this.output?.sendNoteOff(led[anyColor], 0);
+        })
     }
 }   
