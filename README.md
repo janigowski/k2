@@ -6,7 +6,18 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Status: WIP](https://img.shields.io/badge/Status-Work%20In%20Progress-yellow.svg)]()
 
-A lightweight JavaScript wrapper for the Allen&Heath K2 MIDI controller designed with creative developers and new media artists in mind. Transform your K2 into an intuitive interface for interactive installations, live performances, generative art, and creative coding projects.
+A lightweight TypeScript wrapper for the Allen&Heath K2 MIDI controller designed with creative developers and new media artists in mind. Transform your K2 into an intuitive interface for interactive installations, live performances, generative art, and creative coding projects.
+
+## Objective
+
+The Allen&Heath K2 MIDI Controller Library aims to provide an intuitive interface for developers and artists working with the K2 controller. By abstracting away the complexity of MIDI communication and hardware mapping, this library allows you to focus on creating amazing interactive experiences rather than dealing with technical details.
+
+Key objectives:
+- Allow to use K2 by intuition. You don't have to remember any MIDI Notes or open K2 documentation to handle control change or highlight button again. This library makes all of that for you. All controls are mapped and tested.
+- Provide a clean, type-safe API that makes working with the K2 controller feel natural and straightforward
+- Support all K2 hardware features including buttons, knobs, faders, and LED feedback
+- Enable both direct control and mapping-based approaches to suit different use cases
+- Make the K2 controller accessible to creative developers and artists without requiring deep MIDI knowledge
 
 ## Official Resources 📚
 
@@ -17,8 +28,31 @@ A lightweight JavaScript wrapper for the Allen&Heath K2 MIDI controller designed
 
 ## Development Status 🚧
 
-This project is in active development. You can:
+This project is in active development. Current implementation status:
 
+### Implemented Features ✅
+- Complete hardware mapping for all K2 controls:
+  - 36 buttons
+  - 12 knobs
+  - 4 faders
+  - 6 encoders
+  - 32 LEDs (red, green, amber)
+- MIDI message translation layer
+- Event-based API for all controls
+- TypeScript support with full type definitions
+- Unit tests for all hardware mappings
+- Browser MIDI API integration
+- Example implementations for vanilla JS and Svelte
+
+### In Progress 🚧
+- WebMIDI support improvements
+- Additional example implementations
+- Documentation improvements
+
+### Planned Features 📋
+- Multiple controller support
+
+You can:
 - ⭐ Star the repository to show your interest
 - 🐛 Open issues to suggest features or report bugs
 - 🤝 Contribute to the development
@@ -34,6 +68,42 @@ The installation instructions and examples in this README represent the planned 
 - 🏭 Factory function pattern for flexible instance creation
 - 🎹 Support for all K2 controls and LEDs
 - 🔌 Built on top of WebMIDI API
+- 🌐 Environment agnostic - works in browser and Node.js
+- 🔌 Flexible MIDI provider system - use any MIDI implementation that follows the MIDIProvider interface
+
+## Environment Agnostic Design 🌐
+
+The library is designed to be environment agnostic, meaning it works seamlessly in both browser and Node.js environments. This is achieved through a flexible MIDI provider system:
+
+```typescript
+// Example of using BrowserMIDI provider (default for browser)
+import { createK2Controller, BrowserMIDIProvider } from 'k2';
+
+const k2 = createK2Controller({
+  channel: 1,
+  provider: new BrowserMIDIProvider()
+});
+
+// Example of using a custom MIDI provider
+import { createK2Controller } from 'k2';
+import { MIDIProvider } from 'k2/interfaces';
+
+class CustomMIDIProvider implements MIDIProvider {
+  // Implement required MIDI interface methods
+  // This could be WebMIDI.js, node-midi, easy-midi, or any other MIDI implementation
+}
+
+const k2 = createK2Controller({
+  channel: 1,
+  provider: new CustomMIDIProvider()
+});
+```
+
+This design allows you to:
+- Use the library in any JavaScript/TypeScript environment
+- Inject your own MIDI implementation for testing
+- Switch between different MIDI backends without changing your application code
+- Use the library with various MIDI implementations (WebMIDI, WebMIDI.js, node-midi, easy-midi, etc.)
 
 ## Roadmap 🗺️
 
@@ -44,10 +114,7 @@ The installation instructions and examples in this README represent the planned 
 - ✅ Hardware controls mapping
 
 ### Coming Soon
-- 🚧 WebMIDI support
-- 🚧 Virtual MIDI port support
-- 🚧 Preset system for control mappings
-- 🚧 Visual feedback patterns for LEDs
+- 🚧 Full WebMIDI support
 - 🚧 Multiple controller support
 
 ### Future Ideas
@@ -413,16 +480,3 @@ const dawMapping = createMappingLayer(k2, userMappings);
 //   }
 // }
 ```
-
-## 🎛️ Handling Latching Layers in K2  
-
-### 🔹 This Tool Uses the Default Latching Layer  
-
-The Allen & Heath XONE:K2 features a **Latching Layers system**, allowing controls to send different MIDI messages depending on the active layer. However, configuring these layers requires **manual hardware setup** and **cannot be changed dynamically via software**.  
-
-To keep integration simple and seamless, **this tool operates using the default Latching Layer** set in the K2 hardware. Developers who need custom layer switching should handle it within their own applications.  
-
-### ✅ Summary  
-- **This tool operates using the default Latching Layer.**  
-- **Latching Layers cannot be changed dynamically via software.**  
-- **Developers are responsible for handling additional layers if needed.**  
