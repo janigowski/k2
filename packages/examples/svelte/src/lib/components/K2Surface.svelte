@@ -2,9 +2,8 @@
   import { createEventDispatcher } from "svelte";
   import Encoder from "./Encoder.svelte";
   import Knob from "./Knob.svelte";
-  import Button from "./Button.svelte";
-  import Fader from "./Fader.svelte";
   import LED from "./LED.svelte";
+  import Fader from "./Fader.svelte";
 
   // Define color type locally instead of importing
   type Color = "red" | "green" | "amber";
@@ -25,7 +24,7 @@
   export let encoder6Value = 0;
   export let encoder6Active = false;
 
-  // LEDs colors (just below encoders)
+  // LEDs colors (only 4 LEDs below encoders 1-4)
   export let led1Color: "off" | "red" | "amber" | "green" = "off";
   export let led2Color: "off" | "red" | "amber" | "green" = "off";
   export let led3Color: "off" | "red" | "amber" | "green" = "off";
@@ -51,8 +50,7 @@
   export let fader3Value = 0.5;
   export let fader4Value = 0.5;
 
-  // Buttons - We use labeled buttons as in the image
-  // Labeled buttons A-P
+  // All LED colors
   export let buttonAColor: "off" | "red" | "amber" | "green" = "off";
   export let buttonBColor: "off" | "red" | "amber" | "green" = "off";
   export let buttonCColor: "off" | "red" | "amber" | "green" = "off";
@@ -96,11 +94,6 @@
   export let layerButtonColor: "off" | "red" | "amber" | "green" = "off";
   export let exitSetupButtonColor: "off" | "red" | "amber" | "green" = "off";
 
-  function handleButtonClick(event: CustomEvent<{ id: string }>) {
-    const { id } = event.detail;
-    dispatch("buttonClick", { id });
-  }
-
   function handleLedClick(event: CustomEvent<{ id: string }>) {
     const { id } = event.detail;
     dispatch("ledClick", { id });
@@ -118,85 +111,77 @@
       <!-- Top row encoders -->
       <div class="encoder-container">
         <Encoder id="encoder-1" value={encoder1Value} active={encoder1Active} />
-        <Button
+        <LED
           id="encoder-1"
           color={encoder1ButtonColor}
-          on:click={handleButtonClick}
+          on:click={handleLedClick}
         />
       </div>
 
       <div class="encoder-container">
         <Encoder id="encoder-2" value={encoder2Value} active={encoder2Active} />
-        <Button
+        <LED
           id="encoder-2"
           color={encoder2ButtonColor}
-          on:click={handleButtonClick}
+          on:click={handleLedClick}
         />
       </div>
 
       <div class="encoder-container">
         <Encoder id="encoder-3" value={encoder3Value} active={encoder3Active} />
-        <Button
+        <LED
           id="encoder-3"
           color={encoder3ButtonColor}
-          on:click={handleButtonClick}
+          on:click={handleLedClick}
         />
       </div>
 
       <div class="encoder-container">
         <Encoder id="encoder-4" value={encoder4Value} active={encoder4Active} />
-        <Button
+        <LED
           id="encoder-4"
           color={encoder4ButtonColor}
-          on:click={handleButtonClick}
+          on:click={handleLedClick}
         />
       </div>
     </div>
 
-    <!-- Row of LEDs under encoders -->
+    <!-- Row of LEDs under encoders - these map directly to encoder-1 to encoder-4 hardware LEDs -->
     <div class="led-row">
-      <LED id="led-1" color={led1Color} on:click={handleLedClick} />
-      <LED id="led-2" color={led2Color} on:click={handleLedClick} />
-      <LED id="led-3" color={led3Color} on:click={handleLedClick} />
-      <LED id="led-4" color={led4Color} on:click={handleLedClick} />
+      <div class="small-led-wrapper">
+        <LED id="encoder-1" color={led1Color} on:click={handleLedClick} />
+      </div>
+      <div class="small-led-wrapper">
+        <LED id="encoder-2" color={led2Color} on:click={handleLedClick} />
+      </div>
+      <div class="small-led-wrapper">
+        <LED id="encoder-3" color={led3Color} on:click={handleLedClick} />
+      </div>
+      <div class="small-led-wrapper">
+        <LED id="encoder-4" color={led4Color} on:click={handleLedClick} />
+      </div>
     </div>
 
     <!-- First row of knobs and buttons -->
     <div class="control-row">
       <div class="control-cell">
         <Knob id="knob-1" value={knob1Value} />
-        <Button
-          id="button-1"
-          color={button1Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-1" color={button1Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-2" value={knob2Value} />
-        <Button
-          id="button-2"
-          color={button2Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-2" color={button2Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-3" value={knob3Value} />
-        <Button
-          id="button-3"
-          color={button3Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-3" color={button3Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-4" value={knob4Value} />
-        <Button
-          id="button-4"
-          color={button4Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-4" color={button4Color} on:click={handleLedClick} />
       </div>
     </div>
 
@@ -204,38 +189,22 @@
     <div class="control-row">
       <div class="control-cell">
         <Knob id="knob-5" value={knob5Value} />
-        <Button
-          id="button-5"
-          color={button5Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-5" color={button5Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-6" value={knob6Value} />
-        <Button
-          id="button-6"
-          color={button6Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-6" color={button6Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-7" value={knob7Value} />
-        <Button
-          id="button-7"
-          color={button7Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-7" color={button7Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-8" value={knob8Value} />
-        <Button
-          id="button-8"
-          color={button8Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-8" color={button8Color} on:click={handleLedClick} />
       </div>
     </div>
 
@@ -243,38 +212,22 @@
     <div class="control-row">
       <div class="control-cell">
         <Knob id="knob-9" value={knob9Value} />
-        <Button
-          id="button-9"
-          color={button9Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-9" color={button9Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-10" value={knob10Value} />
-        <Button
-          id="button-10"
-          color={button10Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-10" color={button10Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-11" value={knob11Value} />
-        <Button
-          id="button-11"
-          color={button11Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-11" color={button11Color} on:click={handleLedClick} />
       </div>
 
       <div class="control-cell">
         <Knob id="knob-12" value={knob12Value} />
-        <Button
-          id="button-12"
-          color={button12Color}
-          on:click={handleButtonClick}
-        />
+        <LED id="button-12" color={button12Color} on:click={handleLedClick} />
       </div>
     </div>
 
@@ -290,150 +243,70 @@
     <div class="button-grid">
       <!-- Row 1: A-D -->
       <div class="button-row">
-        <Button
-          id="A"
-          color={buttonAColor}
-          label="A"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="B"
-          color={buttonBColor}
-          label="B"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="C"
-          color={buttonCColor}
-          label="C"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="D"
-          color={buttonDColor}
-          label="D"
-          on:click={handleButtonClick}
-        />
+        <LED id="A" color={buttonAColor} label="A" on:click={handleLedClick} />
+        <LED id="B" color={buttonBColor} label="B" on:click={handleLedClick} />
+        <LED id="C" color={buttonCColor} label="C" on:click={handleLedClick} />
+        <LED id="D" color={buttonDColor} label="D" on:click={handleLedClick} />
       </div>
 
       <!-- Row 2: E-H -->
       <div class="button-row">
-        <Button
-          id="E"
-          color={buttonEColor}
-          label="E"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="F"
-          color={buttonFColor}
-          label="F"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="G"
-          color={buttonGColor}
-          label="G"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="H"
-          color={buttonHColor}
-          label="H"
-          on:click={handleButtonClick}
-        />
+        <LED id="E" color={buttonEColor} label="E" on:click={handleLedClick} />
+        <LED id="F" color={buttonFColor} label="F" on:click={handleLedClick} />
+        <LED id="G" color={buttonGColor} label="G" on:click={handleLedClick} />
+        <LED id="H" color={buttonHColor} label="H" on:click={handleLedClick} />
       </div>
 
       <!-- Row 3: I-L -->
       <div class="button-row">
-        <Button
-          id="I"
-          color={buttonIColor}
-          label="I"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="J"
-          color={buttonJColor}
-          label="J"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="K"
-          color={buttonKColor}
-          label="K"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="L"
-          color={buttonLColor}
-          label="L"
-          on:click={handleButtonClick}
-        />
+        <LED id="I" color={buttonIColor} label="I" on:click={handleLedClick} />
+        <LED id="J" color={buttonJColor} label="J" on:click={handleLedClick} />
+        <LED id="K" color={buttonKColor} label="K" on:click={handleLedClick} />
+        <LED id="L" color={buttonLColor} label="L" on:click={handleLedClick} />
       </div>
 
       <!-- Row 4: M-P -->
       <div class="button-row">
-        <Button
-          id="M"
-          color={buttonMColor}
-          label="M"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="N"
-          color={buttonNColor}
-          label="N"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="O"
-          color={buttonOColor}
-          label="O"
-          on:click={handleButtonClick}
-        />
-        <Button
-          id="P"
-          color={buttonPColor}
-          label="P"
-          on:click={handleButtonClick}
-        />
+        <LED id="M" color={buttonMColor} label="M" on:click={handleLedClick} />
+        <LED id="N" color={buttonNColor} label="N" on:click={handleLedClick} />
+        <LED id="O" color={buttonOColor} label="O" on:click={handleLedClick} />
+        <LED id="P" color={buttonPColor} label="P" on:click={handleLedClick} />
       </div>
     </div>
   </div>
 
   <!-- Bottom row with Layer, encoders 5-6, Exit Setup -->
   <div class="bottom-row">
-    <Button
+    <LED
       id="layer"
       color={layerButtonColor}
       label="LAYER"
-      on:click={handleButtonClick}
+      on:click={handleLedClick}
     />
 
     <div class="encoder-container">
       <Encoder id="encoder-5" value={encoder5Value} active={encoder5Active} />
-      <Button
+      <LED
         id="encoder-5"
         color={encoder5ButtonColor}
-        on:click={handleButtonClick}
+        on:click={handleLedClick}
       />
     </div>
 
     <div class="encoder-container">
       <Encoder id="encoder-6" value={encoder6Value} active={encoder6Active} />
-      <Button
+      <LED
         id="encoder-6"
         color={encoder6ButtonColor}
-        on:click={handleButtonClick}
+        on:click={handleLedClick}
       />
     </div>
 
-    <Button
+    <LED
       id="exit-setup"
       color={exitSetupButtonColor}
       label="EXIT SETUP"
-      on:click={handleButtonClick}
+      on:click={handleLedClick}
     />
   </div>
 </div>
@@ -492,6 +365,11 @@
     margin-top: -10px;
   }
 
+  .small-led-wrapper :global(.led) {
+    width: 30px;
+    height: 20px;
+  }
+
   .control-row {
     display: flex;
     justify-content: space-around;
@@ -540,7 +418,7 @@
     height: 60px;
   }
 
-  .encoder-container :global(.k2-button) {
+  .encoder-container :global(.led) {
     position: absolute;
     top: 50%;
     left: 50%;

@@ -26,12 +26,13 @@
     encoder6: false,
   };
 
-  // LED colors
+  // LED colors - UI-only representation for the LEDs below encoders 1-4
+  // These use led-1 to led-4 in UI but map to encoder-1 to encoder-4 when sending to hardware
   let ledColors: Record<string, "off" | "red" | "green" | "amber"> = {
-    "led-1": "off",
-    "led-2": "off",
-    "led-3": "off",
-    "led-4": "off",
+    "encoder-1": "off",
+    "encoder-2": "off",
+    "encoder-3": "off",
+    "encoder-4": "off",
   };
 
   let knobValues = {
@@ -56,7 +57,7 @@
     fader4: 0.5,
   };
 
-  // Store button colors
+  // All buttons can have LED colors (including encoder buttons)
   let buttonColors: Record<string, "off" | "red" | "green" | "amber"> = {
     // Labeled buttons
     A: "off",
@@ -90,13 +91,13 @@
     "button-11": "off",
     "button-12": "off",
 
-    // Encoder buttons
+    // Encoder buttons - note that only 1-4 can have LEDs on the physical device
     "encoder-1": "off",
     "encoder-2": "off",
     "encoder-3": "off",
     "encoder-4": "off",
-    "encoder-5": "off",
-    "encoder-6": "off",
+    "encoder-5": "off", // No LED on physical device
+    "encoder-6": "off", // No LED on physical device
 
     // Special buttons
     layer: "off",
@@ -121,106 +122,125 @@
     "amber",
   ];
 
-  // Handle UI button clicks
-  function handleButtonClick(event: CustomEvent<{ id: string }>) {
-    const { id } = event.detail;
-
-    // Check if the button ID exists in our colors map
-    if (id in buttonColors) {
-      const colorIndex = colorCycle.indexOf(buttonColors[id]);
-      const nextColorIndex = (colorIndex + 1) % colorCycle.length;
-      const newColor = colorCycle[nextColorIndex];
-
-      buttonColors[id] = newColor;
-      buttonColors = { ...buttonColors }; // Trigger reactivity
-
-      handleEvent(`UI: Button clicked: ${id}, new color: ${newColor}`);
-
-      // If it's an encoder button 1-4, also update the corresponding LED
-      if (id.startsWith("encoder-") && parseInt(id.split("-")[1]) <= 4) {
-        const encoderNum = id.split("-")[1];
-        const ledId = `led-${encoderNum}`;
-
-        // Update LED color in UI
-        ledColors[ledId] = newColor;
-        ledColors = { ...ledColors }; // Trigger reactivity
-
-        // Only send LED command if we're connected to MIDI
-        if (isConnected && k2) {
-          try {
-            if (newColor === "off") {
-              // Turn off the LED on the physical device
-              k2.unhighlightLED(id as any);
-              handleEvent(`MIDI: Turned off LED for ${id}`);
-            } else {
-              // Highlight the LED on the physical device
-              k2.highlightLED(id as any, newColor);
-              handleEvent(`MIDI: Set LED for ${id} to ${newColor}`);
-            }
-          } catch (error) {
-            handleEvent(`MIDI error: ${error}`);
-          }
-        }
-      }
-
-      // If it's an encoder button, activate it temporarily for visual feedback
-      if (id.startsWith("encoder-")) {
-        const encoderNumber = id.split("-")[1];
-        const key = `encoder${encoderNumber}`;
-
-        // Make active for a short time
-        if (key in encoderActives) {
-          encoderActives[key as keyof typeof encoderActives] = true;
-          encoderActives = { ...encoderActives }; // Trigger reactivity
-
-          // Reset active state after 300ms
-          setTimeout(() => {
-            encoderActives[key as keyof typeof encoderActives] = false;
-            encoderActives = { ...encoderActives }; // Trigger reactivity
-          }, 300);
-        }
-      }
-    }
+  // Map the UI LED ID to the corresponding hardware LED ID
+  function mapLedIdToHardwareLedId(uiLedId: string): string {
+    // No mapping needed anymore - using correct IDs directly
+    return uiLedId;
   }
 
   // Handle LED clicks in UI
   function handleLedClick(event: CustomEvent<{ id: string }>) {
     const { id } = event.detail;
+    console.log(`LED click: ${id}`);
 
-    // Check if the LED ID exists in our colors map
-    if (id in ledColors) {
-      const colorIndex = colorCycle.indexOf(ledColors[id]);
-      const nextColorIndex = (colorIndex + 1) % colorCycle.length;
-      const newColor = colorCycle[nextColorIndex];
+    let colorMap: Record<string, "off" | "red" | "green" | "amber">;
 
-      ledColors[id] = newColor;
-      ledColors = { ...ledColors }; // Trigger reactivity
+    // Determine if this is a button/LED
+    if (id in buttonColors) {
+      colorMap = buttonColors;
+    } else if (id in ledColors) {
+      colorMap = ledColors;
+    } else {
+      console.warn(`Unknown LED ID: ${id}`);
+      return; // Unknown LED type
+    }
 
-      handleEvent(`UI: LED clicked: ${id}, new color: ${newColor}`);
+    // Cycle through colors
+    const colorIndex = colorCycle.indexOf(colorMap[id]);
+    const nextColorIndex = (colorIndex + 1) % colorCycle.length;
+    const newColor = colorCycle[nextColorIndex];
 
-      // Send MIDI message if connected
-      if (isConnected && k2) {
-        try {
-          // Extract the encoder number from the LED id (led-1 -> 1)
-          const encoderNum = id.split("-")[1];
-          const encoderId = `encoder-${encoderNum}`;
+    // Update appropriate color map
+    colorMap[id] = newColor;
 
-          if (newColor === "off") {
-            // Turn off the LED on the physical device
-            k2.unhighlightLED(encoderId as any);
-            handleEvent(`MIDI: Turned off LED for encoder-${encoderNum}`);
-          } else {
-            // Highlight the LED on the physical device
-            k2.highlightLED(encoderId as any, newColor);
-            handleEvent(
-              `MIDI: Set LED for encoder-${encoderNum} to ${newColor}`
-            );
-          }
-        } catch (error) {
-          handleEvent(`MIDI error: ${error}`);
+    // Trigger reactivity
+    if (id in buttonColors) {
+      buttonColors = { ...buttonColors };
+    } else {
+      ledColors = { ...ledColors };
+    }
+
+    handleEvent(`UI: LED clicked: ${id}, new color: ${newColor}`);
+
+    // Check if this is a button/LED that has physical LED capability
+    const hasPhysicalLed =
+      (id.startsWith("encoder-") && parseInt(id.split("-")[1]) <= 4) ||
+      (!id.startsWith("encoder-") && id in buttonColors);
+
+    // Send MIDI message if connected and if the LED has physical representation
+    if (isConnected && k2 && hasPhysicalLed) {
+      try {
+        // No mapping needed, using correct hardware IDs directly
+        if (newColor === "off") {
+          // Turn off the LED on the physical device
+          console.log(`Turning OFF LED: ${id}`);
+          k2.unhighlightLED(id as any);
+          handleEvent(`MIDI: Turned off LED for ${id}`);
+        } else {
+          // Highlight the LED on the physical device with new color
+          console.log(`Highlighting LED: ${id} with color ${newColor}`);
+          k2.highlightLED(id as any, newColor);
+          handleEvent(`MIDI: Set LED for ${id} to ${newColor}`);
         }
+      } catch (error) {
+        console.error(`Error controlling LED ${id}:`, error);
+        handleEvent(`MIDI error: ${error}`);
       }
     }
+
+    // If it's an encoder button, activate it temporarily for visual feedback
+    if (id.startsWith("encoder-")) {
+      simulateEncoderButtonPress(id);
+    }
+  }
+
+  // Helper function to simulate encoder button press animation
+  function simulateEncoderButtonPress(id: string) {
+    const encoderNumber = id.split("-")[1];
+    const key = `encoder${encoderNumber}`;
+
+    // Make active for a short time
+    if (key in encoderActives) {
+      encoderActives[key as keyof typeof encoderActives] = true;
+      encoderActives = { ...encoderActives }; // Trigger reactivity
+
+      // Reset active state after 300ms
+      setTimeout(() => {
+        encoderActives[key as keyof typeof encoderActives] = false;
+        encoderActives = { ...encoderActives }; // Trigger reactivity
+      }, 300);
+    }
+  }
+
+  // Toggle LED color function - used by both UI clicks and physical button presses
+  function toggleLedColor(id: string) {
+    let colorMap: Record<string, "off" | "red" | "green" | "amber">;
+
+    // Determine which color map to use
+    if (id in buttonColors) {
+      colorMap = buttonColors;
+    } else if (id in ledColors) {
+      colorMap = ledColors;
+    } else {
+      return "off"; // Unknown LED
+    }
+
+    // Cycle through colors
+    const colorIndex = colorCycle.indexOf(colorMap[id]);
+    const nextColorIndex = (colorIndex + 1) % colorCycle.length;
+    const newColor = colorCycle[nextColorIndex];
+
+    // Update color map
+    colorMap[id] = newColor;
+
+    // Trigger reactivity
+    if (id in buttonColors) {
+      buttonColors = { ...buttonColors };
+    } else {
+      ledColors = { ...ledColors };
+    }
+
+    return newColor;
   }
 
   onMount(async () => {
@@ -239,67 +259,79 @@
         handleEvent(`MIDI: Connection error: ${error.message}`);
       });
 
+      // Handle physical button press from K2 hardware
       k2.on("button.press", (button: { name: ButtonName }) => {
+        // Add debug output to see what's coming in
+        console.log("Button press event:", button);
         handleEvent(`MIDI: Button pressed: ${button.name}`);
 
-        // Highlight the button in UI (if it's in our map)
+        // Toggle the LED color when physical button is pressed
         if (button.name in buttonColors) {
-          // Toggle button color instead of just setting to red
+          // Get the new color by cycling through color options
           const colorIndex = colorCycle.indexOf(buttonColors[button.name]);
           const nextColorIndex = (colorIndex + 1) % colorCycle.length;
           const newColor = colorCycle[nextColorIndex];
 
+          // Update the button color
           buttonColors[button.name] = newColor;
           buttonColors = { ...buttonColors }; // Trigger reactivity
 
           handleEvent(`MIDI: Button ${button.name} toggled to ${newColor}`);
 
-          // If it's an encoder button 1-4, also update the corresponding LED
+          // If it's an encoder button with a corresponding LED, update the LED too
           if (
             button.name.startsWith("encoder-") &&
             parseInt(button.name.split("-")[1]) <= 4
           ) {
-            const encoderNum = button.name.split("-")[1];
-            const ledId = `led-${encoderNum}`;
-
-            // Update LED in UI
-            ledColors[ledId] = newColor;
+            // Update the LED for encoders 1-4 directly (no led-1 to led-4 anymore)
+            ledColors[button.name] = newColor;
             ledColors = { ...ledColors }; // Trigger reactivity
 
             handleEvent(
-              `MIDI: LED ${ledId} updated to match button ${button.name}`
+              `MIDI: LED for ${button.name} updated to match button press`
             );
           }
-        }
 
-        // If it's an encoder button, set active state
-        if (button.name.startsWith("encoder-")) {
-          const encoderNumber = button.name.split("-")[1];
-          const key = `encoder${encoderNumber}`;
+          // Simulate encoder button press animation
+          if (button.name.startsWith("encoder-")) {
+            simulateEncoderButtonPress(button.name);
+          }
 
-          if (key in encoderActives) {
-            encoderActives[key as keyof typeof encoderActives] = true;
-            encoderActives = { ...encoderActives }; // Trigger reactivity
+          // Send the color to the physical device IF the button has an LED
+          // Only encoders 1-4 and regular buttons have LEDs
+          const hasLed =
+            (button.name.startsWith("encoder-") &&
+              parseInt(button.name.split("-")[1]) <= 4) ||
+            !button.name.startsWith("encoder-");
+
+          if (isConnected && k2 && hasLed) {
+            try {
+              // No need to map encoder button names - they're already correct hardware IDs
+              if (newColor === "off") {
+                // Turn off the LED on the physical device
+                console.log(
+                  `Turning OFF LED from button press: ${button.name}`
+                );
+                k2.unhighlightLED(button.name as any);
+                handleEvent(`MIDI: Turned off LED for ${button.name}`);
+              } else {
+                // Highlight the LED on the physical device with new color
+                console.log(
+                  `Highlighting LED from button press: ${button.name} with color ${newColor}`
+                );
+                k2.highlightLED(button.name as any, newColor);
+                handleEvent(`MIDI: Set LED for ${button.name} to ${newColor}`);
+              }
+            } catch (error) {
+              console.error(`Error controlling LED ${button.name}:`, error);
+              handleEvent(`MIDI error: ${error}`);
+            }
           }
         }
       });
 
       k2.on("button.release", (button: { name: ButtonName }) => {
         handleEvent(`MIDI: Button released: ${button.name}`);
-
-        // If it's an encoder button, reset the active state
-        if (button.name.startsWith("encoder-")) {
-          const encoderNumber = button.name.split("-")[1];
-          const key = `encoder${encoderNumber}`;
-
-          if (key in encoderActives) {
-            // Wait a bit to reset active state
-            setTimeout(() => {
-              encoderActives[key as keyof typeof encoderActives] = false;
-              encoderActives = { ...encoderActives }; // Trigger reactivity
-            }, 100);
-          }
-        }
       });
 
       k2.on("knob.change", (knob: { name: string; value: number }) => {
@@ -340,7 +372,7 @@
 </script>
 
 <main>
-  <h1>K2 Svelte Example</h1>
+  <h1>K2 Debugger</h1>
 
   <div class="controller-container">
     <K2Surface
@@ -356,10 +388,10 @@
       encoder5Active={encoderActives.encoder5}
       encoder6Value={encoderValues.encoder6}
       encoder6Active={encoderActives.encoder6}
-      led1Color={ledColors["led-1"]}
-      led2Color={ledColors["led-2"]}
-      led3Color={ledColors["led-3"]}
-      led4Color={ledColors["led-4"]}
+      led1Color={ledColors["encoder-1"]}
+      led2Color={ledColors["encoder-2"]}
+      led3Color={ledColors["encoder-3"]}
+      led4Color={ledColors["encoder-4"]}
       knob1Value={knobValues.knob1}
       knob2Value={knobValues.knob2}
       knob3Value={knobValues.knob3}
@@ -412,7 +444,6 @@
       encoder6ButtonColor={buttonColors["encoder-6"]}
       layerButtonColor={buttonColors.layer}
       exitSetupButtonColor={buttonColors["exit-setup"]}
-      on:buttonClick={handleButtonClick}
       on:ledClick={handleLedClick}
     />
   </div>

@@ -3,6 +3,7 @@
 
   export let color: "off" | "red" | "green" | "amber" = "off";
   export let id = "";
+  export let label = "";
 
   const colors = {
     off: "transparent",
@@ -25,21 +26,23 @@
     on:click={handleClick}
     aria-label={`LED ${id}, currently ${color}`}
     title="Click to change LED color"
-  ></button>
+  >
+    {#if label}
+      <span class="label">{label}</span>
+    {/if}
+  </button>
 </div>
 
 <style>
   .led-container {
-    width: 40px;
-    height: 25px;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
   .led {
-    width: 30px;
-    height: 20px;
+    width: 50px;
+    height: 30px;
     background-color: #222;
     border: 1px solid #555;
     border-radius: 4px;
@@ -51,6 +54,9 @@
     -webkit-appearance: none;
     outline: none;
     transition: all 0.1s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .led::after {
@@ -79,5 +85,14 @@
 
   .led:active {
     transform: scale(0.95);
+  }
+
+  .label {
+    font-size: 10px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 0 2px #000;
+    position: relative;
+    z-index: 1;
   }
 </style>
