@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/header.png" alt="K2 MIDI Controller Library Banner" width="100%" />
+</p>
+
 # Allen&Heath K2 MIDI Controller Library 🎛️
 
 > ⚠️ **Work In Progress**: This library is currently under active development and not yet published. Star the repository to stay updated!
