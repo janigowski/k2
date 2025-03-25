@@ -11,16 +11,16 @@
 
 <style>
   .fader-container {
-    width: 30px;
-    height: 100px;
+    width: 25px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
   .fader-track {
-    width: 10px;
-    height: 90px;
+    width: 8px;
+    height: 70px;
     background-color: #111;
     border: 1px solid #555;
     position: relative;
@@ -30,9 +30,9 @@
 
   .fader-handle {
     position: absolute;
-    left: -5px;
+    left: -6px;
     width: 20px;
-    height: 20px;
+    height: 16px;
     background-color: #ddd;
     border-radius: 3px;
     border: 1px solid #777;

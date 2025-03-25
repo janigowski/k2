@@ -4,8 +4,15 @@
   import { K2 } from "../../../core/K2";
   import { BrowserMIDIProvider } from "../../../core/BrowserMIDIProvider/BrowserMIDIProvider";
   import type { ButtonName } from "../../../core/controlls";
+  import ScenarioController from "./lib/components/ScenarioController.svelte";
+  import { scenarios } from "./lib/scenarios/scenarios";
+  import type { LEDScenario } from "./lib/scenarios/LEDScenario";
+  import type { LEDState } from "./lib/scenarios/LEDScenario";
 
   let events: string[] = [];
+  let activeScenario: LEDScenario | null = null;
+  let isScenarioPlaying = false;
+  let collectEvents = true;
 
   // K2Surface state
   let encoderValues: Record<string, number> = {
@@ -105,7 +112,9 @@
   };
 
   function handleEvent(message: string) {
-    events = [message, ...events];
+    if (collectEvents) {
+      events = [message, ...events];
+    }
   }
 
   // MIDI integration
@@ -243,6 +252,81 @@
     return newColor;
   }
 
+  // LED Scenario handlers
+  function handleScenarioPlay(event: CustomEvent<{ scenario: LEDScenario }>) {
+    if (isScenarioPlaying && activeScenario) {
+      activeScenario.pause();
+    }
+
+    const { scenario } = event.detail;
+    activeScenario = scenario;
+
+    // Set up the scenario with the K2 instance and UI update callback
+    scenario.setK2(k2).setUpdateCallback(updateLEDsFromScenario);
+
+    // Start the scenario
+    scenario.play();
+    isScenarioPlaying = true;
+
+    handleEvent(`Scenario: Started "${scenario.name}" scenario`);
+  }
+
+  function handleScenarioPause() {
+    if (activeScenario) {
+      activeScenario.pause();
+      handleEvent(`Scenario: Paused "${activeScenario.name}" scenario`);
+      activeScenario = null;
+    }
+    isScenarioPlaying = false;
+  }
+
+  // This function receives updates from scenarios and applies them to the UI
+  function updateLEDsFromScenario(ledState: LEDState) {
+    // Update all LED colors in the UI based on the scenario state
+    Object.entries(ledState).forEach(([id, color]) => {
+      if (id in buttonColors) {
+        buttonColors[id] = color;
+      } else if (id in ledColors) {
+        ledColors[id] = color;
+      }
+    });
+
+    // Trigger reactivity by creating new references
+    buttonColors = { ...buttonColors };
+    ledColors = { ...ledColors };
+  }
+
+  // Function to turn off all LEDs
+  function handleTurnOffAll() {
+    // Turn off all LEDs in UI
+    Object.keys(buttonColors).forEach((key) => {
+      buttonColors[key] = "off";
+    });
+
+    Object.keys(ledColors).forEach((key) => {
+      ledColors[key] = "off";
+    });
+
+    // Trigger reactivity
+    buttonColors = { ...buttonColors };
+    ledColors = { ...ledColors };
+
+    // Turn off LEDs on physical device if connected
+    if (isConnected && k2) {
+      try {
+        // Individually turn off all LEDs instead of using clearAllLEDs
+        Object.keys(buttonColors).forEach((key) => {
+          k2.unhighlightLED(key as any);
+        });
+
+        handleEvent("Scenario: Turned off all LEDs");
+      } catch (error) {
+        console.error("Error turning off LEDs:", error);
+        handleEvent(`MIDI error: ${error}`);
+      }
+    }
+  }
+
   onMount(async () => {
     try {
       await browserMIDIProvider.connect();
@@ -374,96 +458,118 @@
 <main>
   <h1>K2 Debugger</h1>
 
-  <div class="controller-container">
-    <K2Surface
-      encoder1Value={encoderValues.encoder1}
-      encoder1Active={encoderActives.encoder1}
-      encoder2Value={encoderValues.encoder2}
-      encoder2Active={encoderActives.encoder2}
-      encoder3Value={encoderValues.encoder3}
-      encoder3Active={encoderActives.encoder3}
-      encoder4Value={encoderValues.encoder4}
-      encoder4Active={encoderActives.encoder4}
-      encoder5Value={encoderValues.encoder5}
-      encoder5Active={encoderActives.encoder5}
-      encoder6Value={encoderValues.encoder6}
-      encoder6Active={encoderActives.encoder6}
-      led1Color={ledColors["encoder-1"]}
-      led2Color={ledColors["encoder-2"]}
-      led3Color={ledColors["encoder-3"]}
-      led4Color={ledColors["encoder-4"]}
-      knob1Value={knobValues.knob1}
-      knob2Value={knobValues.knob2}
-      knob3Value={knobValues.knob3}
-      knob4Value={knobValues.knob4}
-      knob5Value={knobValues.knob5}
-      knob6Value={knobValues.knob6}
-      knob7Value={knobValues.knob7}
-      knob8Value={knobValues.knob8}
-      knob9Value={knobValues.knob9}
-      knob10Value={knobValues.knob10}
-      knob11Value={knobValues.knob11}
-      knob12Value={knobValues.knob12}
-      fader1Value={faderValues.fader1}
-      fader2Value={faderValues.fader2}
-      fader3Value={faderValues.fader3}
-      fader4Value={faderValues.fader4}
-      buttonAColor={buttonColors.A}
-      buttonBColor={buttonColors.B}
-      buttonCColor={buttonColors.C}
-      buttonDColor={buttonColors.D}
-      buttonEColor={buttonColors.E}
-      buttonFColor={buttonColors.F}
-      buttonGColor={buttonColors.G}
-      buttonHColor={buttonColors.H}
-      buttonIColor={buttonColors.I}
-      buttonJColor={buttonColors.J}
-      buttonKColor={buttonColors.K}
-      buttonLColor={buttonColors.L}
-      buttonMColor={buttonColors.M}
-      buttonNColor={buttonColors.N}
-      buttonOColor={buttonColors.O}
-      buttonPColor={buttonColors.P}
-      button1Color={buttonColors["button-1"]}
-      button2Color={buttonColors["button-2"]}
-      button3Color={buttonColors["button-3"]}
-      button4Color={buttonColors["button-4"]}
-      button5Color={buttonColors["button-5"]}
-      button6Color={buttonColors["button-6"]}
-      button7Color={buttonColors["button-7"]}
-      button8Color={buttonColors["button-8"]}
-      button9Color={buttonColors["button-9"]}
-      button10Color={buttonColors["button-10"]}
-      button11Color={buttonColors["button-11"]}
-      button12Color={buttonColors["button-12"]}
-      encoder1ButtonColor={buttonColors["encoder-1"]}
-      encoder2ButtonColor={buttonColors["encoder-2"]}
-      encoder3ButtonColor={buttonColors["encoder-3"]}
-      encoder4ButtonColor={buttonColors["encoder-4"]}
-      encoder5ButtonColor={buttonColors["encoder-5"]}
-      encoder6ButtonColor={buttonColors["encoder-6"]}
-      layerButtonColor={buttonColors.layer}
-      exitSetupButtonColor={buttonColors["exit-setup"]}
-      on:ledClick={handleLedClick}
-    />
-  </div>
+  <div class="content-container">
+    <div class="controller-container">
+      <K2Surface
+        encoder1Value={encoderValues.encoder1}
+        encoder1Active={encoderActives.encoder1}
+        encoder2Value={encoderValues.encoder2}
+        encoder2Active={encoderActives.encoder2}
+        encoder3Value={encoderValues.encoder3}
+        encoder3Active={encoderActives.encoder3}
+        encoder4Value={encoderValues.encoder4}
+        encoder4Active={encoderActives.encoder4}
+        encoder5Value={encoderValues.encoder5}
+        encoder5Active={encoderActives.encoder5}
+        encoder6Value={encoderValues.encoder6}
+        encoder6Active={encoderActives.encoder6}
+        led1Color={ledColors["encoder-1"]}
+        led2Color={ledColors["encoder-2"]}
+        led3Color={ledColors["encoder-3"]}
+        led4Color={ledColors["encoder-4"]}
+        knob1Value={knobValues.knob1}
+        knob2Value={knobValues.knob2}
+        knob3Value={knobValues.knob3}
+        knob4Value={knobValues.knob4}
+        knob5Value={knobValues.knob5}
+        knob6Value={knobValues.knob6}
+        knob7Value={knobValues.knob7}
+        knob8Value={knobValues.knob8}
+        knob9Value={knobValues.knob9}
+        knob10Value={knobValues.knob10}
+        knob11Value={knobValues.knob11}
+        knob12Value={knobValues.knob12}
+        fader1Value={faderValues.fader1}
+        fader2Value={faderValues.fader2}
+        fader3Value={faderValues.fader3}
+        fader4Value={faderValues.fader4}
+        buttonAColor={buttonColors.A}
+        buttonBColor={buttonColors.B}
+        buttonCColor={buttonColors.C}
+        buttonDColor={buttonColors.D}
+        buttonEColor={buttonColors.E}
+        buttonFColor={buttonColors.F}
+        buttonGColor={buttonColors.G}
+        buttonHColor={buttonColors.H}
+        buttonIColor={buttonColors.I}
+        buttonJColor={buttonColors.J}
+        buttonKColor={buttonColors.K}
+        buttonLColor={buttonColors.L}
+        buttonMColor={buttonColors.M}
+        buttonNColor={buttonColors.N}
+        buttonOColor={buttonColors.O}
+        buttonPColor={buttonColors.P}
+        button1Color={buttonColors["button-1"]}
+        button2Color={buttonColors["button-2"]}
+        button3Color={buttonColors["button-3"]}
+        button4Color={buttonColors["button-4"]}
+        button5Color={buttonColors["button-5"]}
+        button6Color={buttonColors["button-6"]}
+        button7Color={buttonColors["button-7"]}
+        button8Color={buttonColors["button-8"]}
+        button9Color={buttonColors["button-9"]}
+        button10Color={buttonColors["button-10"]}
+        button11Color={buttonColors["button-11"]}
+        button12Color={buttonColors["button-12"]}
+        encoder1ButtonColor={buttonColors["encoder-1"]}
+        encoder2ButtonColor={buttonColors["encoder-2"]}
+        encoder3ButtonColor={buttonColors["encoder-3"]}
+        encoder4ButtonColor={buttonColors["encoder-4"]}
+        encoder5ButtonColor={buttonColors["encoder-5"]}
+        encoder6ButtonColor={buttonColors["encoder-6"]}
+        layerButtonColor={buttonColors.layer}
+        exitSetupButtonColor={buttonColors["exit-setup"]}
+        on:ledClick={handleLedClick}
+      />
+    </div>
 
-  <div class="events">
-    <h2>Events</h2>
-    <div class="event-list">
-      {#each events as event}
-        <div
-          class={event.startsWith("UI:")
-            ? "ui-event"
-            : event.startsWith("MIDI:")
-              ? "midi-event"
-              : event.startsWith("DEBUG:")
-                ? "debug-event"
-                : "other-event"}
-        >
-          {event}
+    <div class="side-panel">
+      <div class="scenario-section">
+        <ScenarioController
+          {scenarios}
+          isPlaying={isScenarioPlaying}
+          on:play={handleScenarioPlay}
+          on:pause={handleScenarioPause}
+          on:turnOffAll={handleTurnOffAll}
+        />
+      </div>
+
+      <div class="events">
+        <div class="events-header">
+          <h2>Events</h2>
+          <label class="toggle">
+            <input type="checkbox" bind:checked={collectEvents} />
+            <span class="toggle-label">Collect Events</span>
+          </label>
         </div>
-      {/each}
+        <div class="event-list">
+          {#each events as event}
+            <div
+              class={event.startsWith("UI:")
+                ? "ui-event"
+                : event.startsWith("MIDI:")
+                  ? "midi-event"
+                  : event.startsWith("Scenario:")
+                    ? "scenario-event"
+                    : event.startsWith("DEBUG:")
+                      ? "debug-event"
+                      : "other-event"}
+            >
+              {event}
+            </div>
+          {/each}
+        </div>
+      </div>
     </div>
   </div>
 </main>
@@ -475,62 +581,183 @@
     padding: 2rem;
     background: #1a1a1a;
     color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
   }
 
   h1 {
     font-size: 2em;
-    margin: 0 0 1rem 0;
+    margin: 0 0 1.5rem 0;
     text-align: center;
+    flex-shrink: 0;
   }
 
   h2 {
-    font-size: 1.5em;
-    margin: 1rem 0;
-  }
-
-  .controller-container {
-    display: flex;
-    justify-content: center;
-    margin: 2rem 0;
-  }
-
-  .events {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-    min-height: 200px;
-    color: #000;
-    font-family: monospace;
+    font-size: 1.2em;
+    margin: 0 0 10px 0;
     text-align: left;
   }
 
+  .content-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+    align-items: flex-start;
+  }
+
+  .controller-container {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow: visible;
+  }
+
+  .side-panel {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    flex: 1;
+    overflow: hidden;
+    align-items: flex-start;
+  }
+
+  .scenario-section,
+  .events {
+    flex: 1;
+    height: calc(100vh - 150px);
+    min-height: 0;
+    overflow: hidden;
+    max-width: calc(50% - 0.75rem);
+  }
+
+  .events {
+    background-color: #2a2a2a;
+    padding: 1rem;
+    border-radius: 8px;
+    color: #ddd;
+    font-family: monospace;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+  }
+
   .event-list {
-    max-height: 300px;
+    flex: 1;
     overflow-y: auto;
+    padding-right: 5px;
   }
 
   .event-list div {
     padding: 4px 8px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #444;
     font-size: 14px;
   }
 
   .ui-event {
-    background-color: #e6f7ff;
+    background-color: rgba(24, 144, 255, 0.2);
     border-left: 3px solid #1890ff;
   }
 
   .midi-event {
-    background-color: #f6ffed;
+    background-color: rgba(82, 196, 26, 0.2);
     border-left: 3px solid #52c41a;
   }
 
+  .scenario-event {
+    background-color: rgba(114, 46, 209, 0.2);
+    border-left: 3px solid #722ed1;
+  }
+
   .debug-event {
-    background-color: #fff7e6;
+    background-color: rgba(250, 173, 20, 0.2);
     border-left: 3px solid #faad14;
   }
 
   .other-event {
-    background-color: #f9f9f9;
+    background-color: rgba(82, 82, 82, 0.2);
+  }
+
+  /* Scrollbar styling */
+  .event-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .event-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 3px;
+  }
+
+  .event-list::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+  }
+
+  .event-list::-webkit-scrollbar-thumb:hover {
+    background: #777;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1000px) {
+    main {
+      height: auto;
+      overflow: auto;
+    }
+
+    .content-container {
+      flex-direction: column;
+      align-items: center;
+      overflow: visible;
+    }
+
+    .controller-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .side-panel {
+      width: 100%;
+      flex: 0 0 auto;
+    }
+
+    .scenario-section {
+      height: 350px;
+    }
+
+    .events {
+      height: 300px;
+    }
+  }
+
+  .events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .toggle input {
+    margin-right: 6px;
+    cursor: pointer;
+  }
+
+  .toggle-label {
+    user-select: none;
+    color: #ccc;
+  }
+
+  .events h2 {
+    color: #fff;
   }
 </style>

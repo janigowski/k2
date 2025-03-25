@@ -107,37 +107,61 @@
   </div>
 
   <div class="k2-grid">
-    <div class="encoder-row">
-      <!-- Top row encoders -->
-      <div class="encoder-container">
-        <Encoder id="encoder-1" value={encoder1Value} active={encoder1Active} />
+    <!-- Encoders Row (non-clickable) -->
+    <div class="k2-row">
+      <div class="encoder-section">
+        <div class="encoder-container">
+          <Encoder
+            id="encoder-1"
+            value={encoder1Value}
+            active={encoder1Active}
+          />
+        </div>
+
+        <div class="encoder-container">
+          <Encoder
+            id="encoder-2"
+            value={encoder2Value}
+            active={encoder2Active}
+          />
+        </div>
+
+        <div class="encoder-container">
+          <Encoder
+            id="encoder-3"
+            value={encoder3Value}
+            active={encoder3Active}
+          />
+        </div>
+
+        <div class="encoder-container">
+          <Encoder
+            id="encoder-4"
+            value={encoder4Value}
+            active={encoder4Active}
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Small LEDs below encoders (clickable) -->
+    <div class="led-row">
+      <div class="led-group">
         <LED
           id="encoder-1"
           color={encoder1ButtonColor}
           on:click={handleLedClick}
         />
-      </div>
-
-      <div class="encoder-container">
-        <Encoder id="encoder-2" value={encoder2Value} active={encoder2Active} />
         <LED
           id="encoder-2"
           color={encoder2ButtonColor}
           on:click={handleLedClick}
         />
-      </div>
-
-      <div class="encoder-container">
-        <Encoder id="encoder-3" value={encoder3Value} active={encoder3Active} />
         <LED
           id="encoder-3"
           color={encoder3ButtonColor}
           on:click={handleLedClick}
         />
-      </div>
-
-      <div class="encoder-container">
-        <Encoder id="encoder-4" value={encoder4Value} active={encoder4Active} />
         <LED
           id="encoder-4"
           color={encoder4ButtonColor}
@@ -146,126 +170,120 @@
       </div>
     </div>
 
-    <!-- Row of LEDs under encoders - these map directly to encoder-1 to encoder-4 hardware LEDs -->
-    <div class="led-row">
-      <div class="small-led-wrapper">
-        <LED id="encoder-1" color={led1Color} on:click={handleLedClick} />
-      </div>
-      <div class="small-led-wrapper">
-        <LED id="encoder-2" color={led2Color} on:click={handleLedClick} />
-      </div>
-      <div class="small-led-wrapper">
-        <LED id="encoder-3" color={led3Color} on:click={handleLedClick} />
-      </div>
-      <div class="small-led-wrapper">
-        <LED id="encoder-4" color={led4Color} on:click={handleLedClick} />
-      </div>
-    </div>
-
     <!-- First row of knobs and buttons -->
-    <div class="control-row">
-      <div class="control-cell">
-        <Knob id="knob-1" value={knob1Value} />
-        <LED id="button-1" color={button1Color} on:click={handleLedClick} />
-      </div>
+    <div class="k2-row">
+      <div class="button-row">
+        <div class="button-group">
+          <Knob id="knob-1" value={knob1Value} />
+          <LED id="button-1" color={button1Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-2" value={knob2Value} />
-        <LED id="button-2" color={button2Color} on:click={handleLedClick} />
-      </div>
+        <div class="button-group">
+          <Knob id="knob-2" value={knob2Value} />
+          <LED id="button-2" color={button2Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-3" value={knob3Value} />
-        <LED id="button-3" color={button3Color} on:click={handleLedClick} />
-      </div>
+        <div class="button-group">
+          <Knob id="knob-3" value={knob3Value} />
+          <LED id="button-3" color={button3Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-4" value={knob4Value} />
-        <LED id="button-4" color={button4Color} on:click={handleLedClick} />
+        <div class="button-group">
+          <Knob id="knob-4" value={knob4Value} />
+          <LED id="button-4" color={button4Color} on:click={handleLedClick} />
+        </div>
       </div>
     </div>
 
     <!-- Second row of knobs and buttons -->
-    <div class="control-row">
-      <div class="control-cell">
-        <Knob id="knob-5" value={knob5Value} />
-        <LED id="button-5" color={button5Color} on:click={handleLedClick} />
-      </div>
+    <div class="k2-row">
+      <div class="button-row">
+        <div class="button-group">
+          <Knob id="knob-5" value={knob5Value} />
+          <LED id="button-5" color={button5Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-6" value={knob6Value} />
-        <LED id="button-6" color={button6Color} on:click={handleLedClick} />
-      </div>
+        <div class="button-group">
+          <Knob id="knob-6" value={knob6Value} />
+          <LED id="button-6" color={button6Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-7" value={knob7Value} />
-        <LED id="button-7" color={button7Color} on:click={handleLedClick} />
-      </div>
+        <div class="button-group">
+          <Knob id="knob-7" value={knob7Value} />
+          <LED id="button-7" color={button7Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-8" value={knob8Value} />
-        <LED id="button-8" color={button8Color} on:click={handleLedClick} />
+        <div class="button-group">
+          <Knob id="knob-8" value={knob8Value} />
+          <LED id="button-8" color={button8Color} on:click={handleLedClick} />
+        </div>
       </div>
     </div>
 
     <!-- Third row of knobs and buttons -->
-    <div class="control-row">
-      <div class="control-cell">
-        <Knob id="knob-9" value={knob9Value} />
-        <LED id="button-9" color={button9Color} on:click={handleLedClick} />
-      </div>
+    <div class="k2-row">
+      <div class="button-row">
+        <div class="button-group">
+          <Knob id="knob-9" value={knob9Value} />
+          <LED id="button-9" color={button9Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-10" value={knob10Value} />
-        <LED id="button-10" color={button10Color} on:click={handleLedClick} />
-      </div>
+        <div class="button-group">
+          <Knob id="knob-10" value={knob10Value} />
+          <LED id="button-10" color={button10Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-11" value={knob11Value} />
-        <LED id="button-11" color={button11Color} on:click={handleLedClick} />
-      </div>
+        <div class="button-group">
+          <Knob id="knob-11" value={knob11Value} />
+          <LED id="button-11" color={button11Color} on:click={handleLedClick} />
+        </div>
 
-      <div class="control-cell">
-        <Knob id="knob-12" value={knob12Value} />
-        <LED id="button-12" color={button12Color} on:click={handleLedClick} />
+        <div class="button-group">
+          <Knob id="knob-12" value={knob12Value} />
+          <LED id="button-12" color={button12Color} on:click={handleLedClick} />
+        </div>
       </div>
     </div>
 
-    <!-- Row of faders -->
-    <div class="fader-row">
-      <Fader id="fader-1" value={fader1Value} />
-      <Fader id="fader-2" value={fader2Value} />
-      <Fader id="fader-3" value={fader3Value} />
-      <Fader id="fader-4" value={fader4Value} />
+    <!-- Faders row -->
+    <div class="k2-row">
+      <div class="button-row">
+        <Fader id="fader-1" value={fader1Value} />
+        <Fader id="fader-2" value={fader2Value} />
+        <Fader id="fader-3" value={fader3Value} />
+        <Fader id="fader-4" value={fader4Value} />
+      </div>
     </div>
 
-    <!-- 4x4 grid of labeled buttons -->
-    <div class="button-grid">
-      <!-- Row 1: A-D -->
+    <!-- Lettered buttons rows -->
+    <div class="k2-row">
       <div class="button-row">
         <LED id="A" color={buttonAColor} label="A" on:click={handleLedClick} />
         <LED id="B" color={buttonBColor} label="B" on:click={handleLedClick} />
         <LED id="C" color={buttonCColor} label="C" on:click={handleLedClick} />
         <LED id="D" color={buttonDColor} label="D" on:click={handleLedClick} />
       </div>
+    </div>
 
-      <!-- Row 2: E-H -->
+    <div class="k2-row">
       <div class="button-row">
         <LED id="E" color={buttonEColor} label="E" on:click={handleLedClick} />
         <LED id="F" color={buttonFColor} label="F" on:click={handleLedClick} />
         <LED id="G" color={buttonGColor} label="G" on:click={handleLedClick} />
         <LED id="H" color={buttonHColor} label="H" on:click={handleLedClick} />
       </div>
+    </div>
 
-      <!-- Row 3: I-L -->
+    <div class="k2-row">
       <div class="button-row">
         <LED id="I" color={buttonIColor} label="I" on:click={handleLedClick} />
         <LED id="J" color={buttonJColor} label="J" on:click={handleLedClick} />
         <LED id="K" color={buttonKColor} label="K" on:click={handleLedClick} />
         <LED id="L" color={buttonLColor} label="L" on:click={handleLedClick} />
       </div>
+    </div>
 
-      <!-- Row 4: M-P -->
+    <div class="k2-row">
       <div class="button-row">
         <LED id="M" color={buttonMColor} label="M" on:click={handleLedClick} />
         <LED id="N" color={buttonNColor} label="N" on:click={handleLedClick} />
@@ -275,8 +293,7 @@
     </div>
   </div>
 
-  <!-- Bottom row with Layer, encoders 5-6, Exit Setup -->
-  <div class="bottom-row">
+  <div class="special-buttons">
     <LED
       id="layer"
       color={layerButtonColor}
@@ -284,22 +301,14 @@
       on:click={handleLedClick}
     />
 
-    <div class="encoder-container">
-      <Encoder id="encoder-5" value={encoder5Value} active={encoder5Active} />
-      <LED
-        id="encoder-5"
-        color={encoder5ButtonColor}
-        on:click={handleLedClick}
-      />
-    </div>
+    <div class="bottom-encoders">
+      <div class="encoder-container">
+        <Encoder id="encoder-5" value={encoder5Value} active={encoder5Active} />
+      </div>
 
-    <div class="encoder-container">
-      <Encoder id="encoder-6" value={encoder6Value} active={encoder6Active} />
-      <LED
-        id="encoder-6"
-        color={encoder6ButtonColor}
-        on:click={handleLedClick}
-      />
+      <div class="encoder-container">
+        <Encoder id="encoder-6" value={encoder6Value} active={encoder6Active} />
+      </div>
     </div>
 
     <LED
@@ -313,119 +322,165 @@
 
 <style>
   .k2-surface {
-    width: 600px;
-    background-color: #1a1a1a;
-    border-radius: 20px;
+    background-color: #333;
+    border-radius: 30px;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    color: white;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    border: 1px solid #444;
+    gap: 8px;
+    width: 100%;
+    max-width: 460px;
+    aspect-ratio: 9/16;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   }
 
   .k2-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #666;
-    padding-bottom: 10px;
+    margin-bottom: 5px;
   }
 
   .k2-logo {
-    font-weight: bold;
     font-size: 18px;
-    color: #fff;
+    font-weight: bold;
+    letter-spacing: 1px;
   }
 
   .k2-manufacturer {
-    font-weight: bold;
-    font-size: 18px;
-    color: #fff;
+    font-size: 14px;
+    opacity: 0.7;
   }
 
   .k2-grid {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-  }
-
-  .encoder-row {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-  }
-
-  .led-row {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin-top: -10px;
-  }
-
-  .small-led-wrapper :global(.led) {
-    width: 30px;
-    height: 20px;
-  }
-
-  .control-row {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-  }
-
-  .control-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 8px;
+    flex: 1;
   }
 
-  .fader-row {
+  .k2-row {
     display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin: 10px 0;
+    justify-content: space-between;
+    height: auto;
+    min-height: 40px;
   }
 
-  .button-grid {
+  /* Bottom rows should be more compact */
+  .k2-grid > .k2-row:nth-child(n + 5) {
+    min-height: 35px;
+  }
+
+  /* Letter button rows should be even more compact */
+  .k2-grid > .k2-row:nth-child(n + 8) {
+    min-height: 30px;
+  }
+
+  .encoder-section {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    justify-content: space-between;
+    flex: 1;
+  }
+
+  .encoder-container {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .button-row {
     display: flex;
-    justify-content: space-around;
-    width: 100%;
+    justify-content: space-between;
+    flex: 1;
   }
 
-  .bottom-row {
+  .button-group {
     display: flex;
-    justify-content: space-around;
+    flex-direction: column;
     align-items: center;
-    padding: 10px 0;
+    gap: 2px;
+  }
+
+  .led-row {
+    display: flex;
+    justify-content: space-between;
+    height: auto;
+    margin: -2px 0;
+  }
+
+  .led-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .special-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+  }
+
+  .special-buttons :global(.led) {
+    width: 65px !important;
+    height: 25px !important;
+  }
+
+  .bottom-encoders {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  /* Standard LED styling */
+  :global(.led) {
+    width: 45px !important;
+    height: 25px !important;
+    box-shadow:
+      inset 0 0 15px var(--led-color, transparent),
+      0 0 5px var(--led-color, transparent) !important;
+  }
+
+  /* Small LEDs for encoder row */
+  .led-group :global(.led) {
+    width: 20px !important;
+    height: 10px !important;
+    border-radius: 3px !important;
+  }
+
+  :global(.led::after) {
+    opacity: 0.5 !important;
+  }
+
+  :global(.led.clickable:hover) {
+    box-shadow:
+      inset 0 0 15px var(--led-color, transparent),
+      0 0 12px 4px var(--led-color, rgba(255, 255, 255, 0.5)) !important;
+    transform: scale(1.08);
+  }
+
+  .bottom-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
     margin-top: 10px;
     border-top: 1px solid #666;
-    padding-top: 15px;
   }
 
-  .encoder-container {
-    position: relative;
-    width: 60px;
-    height: 60px;
+  .layer-button :global(.led),
+  .exit-setup-button :global(.led) {
+    width: 70px;
+    height: 30px;
   }
 
-  .encoder-container :global(.led) {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 30px;
-    height: 20px;
-    opacity: 0;
-    pointer-events: all;
+  .center-controls {
+    display: flex;
+    gap: 15px;
   }
 </style>
