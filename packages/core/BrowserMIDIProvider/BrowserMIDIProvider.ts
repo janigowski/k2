@@ -6,6 +6,7 @@ export class BrowserMIDIProvider implements MIDIProvider {
     private midiAccess!: WebMidi.MIDIAccess
     private inputs: Record<string, MIDIInput> = {}
     private outputs: Record<string, MIDIOutput> = {}
+    private stateChangeListener: ((event: WebMidi.MIDIConnectionEvent) => void) | null = null
 
     constructor() {
     }
@@ -16,9 +17,23 @@ export class BrowserMIDIProvider implements MIDIProvider {
         if (!this.midiAccess) {
             throw new Error('MIDI access not granted')
         }
+
+        this.attachListeners()
+    }
+
+    private attachListeners() {
+        this.stateChangeListener = (event) => {
+            console.log('MIDI access state changed', event)
+        }
+
+        this.midiAccess.addEventListener('statechange', this.stateChangeListener)
     }
 
     async disconnect() {
+        if (this.stateChangeListener) {
+            this.midiAccess.removeEventListener('statechange', this.stateChangeListener)
+            this.stateChangeListener = null
+        }
     }
 
     getInput(options: MIDIIdentifierOptions): MIDIInput | undefined {

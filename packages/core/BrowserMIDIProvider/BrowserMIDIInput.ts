@@ -83,5 +83,4 @@ export class BrowserMIDIInput implements MIDIInput {
 
         return null
     }
-
 }
