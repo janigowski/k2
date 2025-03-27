@@ -3,6 +3,7 @@ import mitt, { type Emitter, type Handler } from "mitt";
 import { type Button, type Color, getButtonByMidi, type LedName, getLedByName, getControlByControlChange, type Knob, type Fader, type Encoder, leds } from "./controlls";
 import type { MIDIInput, MIDIOutput, MIDIProvider } from "./interfaces/MIDIProvider";
 import debug from 'debug'
+import { Animations } from "./animations";
 
 const log = debug('k2')
 
@@ -39,6 +40,8 @@ export class K2 {
     private output?: MIDIOutput
     private state: K2State = K2State.Disconnected
     public debug = false
+    private ledColors: Map<LedName, Color> = new Map()
+    public startupAnimation = false
 
     constructor(private channel: Channel, public provider: MIDIProvider) {
         this.emitter = mitt()
@@ -59,15 +62,19 @@ export class K2 {
             const input = this.provider.getInput({ name: 'XONE:K2', channel: this.channel })
             const output = this.provider.getOutput({ name: 'XONE:K2', channel: this.channel })
 
-            if (input) {
-                this.input = input
-                this.attachInputEvents()
-                this.state = K2State.Connected
-                this.emitter.emit('connect')
+            if (!input || !output) {
+                throw new Error('Failed to get MIDI ports')
             }
 
-            if (output) {
-                this.output = output
+            this.input = input
+            this.output = output
+            this.attachInputEvents()
+            this.state = K2State.Connected
+            this.emitter.emit('connect')
+
+            if (this.startupAnimation) {
+                const animations = new Animations(this)
+                await animations.playStartupAnimation()
             }
         } catch (error) {
             this.state = K2State.Error
@@ -121,9 +128,15 @@ export class K2 {
                     }
                 } else {
                     if (this.debug) {
-                        // @TODO: use debug
                         console.log('Control does not exist: ', { cc, value });
                     }
+                }
+            })
+
+            this.input.on('midi.connect', async () => {
+                if (this.state === K2State.Connected) {
+                    const animations = new Animations(this)
+                    await animations.playStartupAnimation()
                 }
             })
         }
@@ -141,28 +154,33 @@ export class K2 {
 
         const maxVelocity = 127
         this.output?.sendNoteOn(led[color], maxVelocity);
+        this.ledColors.set(name, color)
     }
 
     unhighlightLED(name: LedName) {
         const led = getLedByName(name);
+        const color = this.ledColors.get(name)
 
         log('unhighlightLED', name, this.output)
 
-        if (!led) {
-            console.error(`LED ${name} not found`);
+        if (!led || !color) {
+            console.error(`LED ${name} not found or not highlighted`);
             return;
         }
 
-        const anyColor = 'green'
-        this.output?.sendNoteOff(led[anyColor], 0);
+        this.output?.sendNoteOff(led[color], 0);
+        this.ledColors.delete(name)
     }
 
     unhighlightAllLEDs() {
-        log('unhighlightLED')
+        log('unhighlightAllLEDs')
 
-        leds.forEach((led) => {
-            const anyColor = 'green'
-            this.output?.sendNoteOff(led[anyColor], 0);
-        })
+        for (const [name, color] of this.ledColors.entries()) {
+            const led = getLedByName(name)
+            if (led) {
+                this.output?.sendNoteOff(led[color], 0)
+            }
+        }
+        this.ledColors.clear()
     }
 }   
