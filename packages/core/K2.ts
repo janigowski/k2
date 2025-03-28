@@ -23,13 +23,13 @@ type ButtonEvents = {
 type Events = {
     connect: void
     connectionError: unknown
+    disconnect: void
 } & ButtonEvents;
 
 type EventNames = keyof Events
 
 export enum K2State {
     Disconnected = 'disconnected',
-    Connecting = 'connecting',
     Connected = 'connected',
     Error = 'error'
 }
@@ -45,6 +45,21 @@ export class K2 {
 
     constructor(private channel: Channel, public provider: MIDIProvider) {
         this.emitter = mitt()
+        this.attachHandlers()
+    }
+
+    private attachHandlers() {
+        this.provider.on('statechange', async (event) => {
+            log('statechange', event)
+
+            if (event.port.name === 'XONE:K2') {
+                if (event.port.state === 'connected') {
+                    await this.connect()
+                } else {
+                    await this.disconnect()
+                }
+            }
+        })
     }
 
     getState(): K2State {
@@ -52,11 +67,11 @@ export class K2 {
     }
 
     async connect(): Promise<void> {
-        if (this.state === K2State.Connecting || this.state === K2State.Connected) {
+        log('connecting... current state:', this.state)
+
+        if (this.state === K2State.Connected) {
             return
         }
-
-        this.state = K2State.Connecting
 
         try {
             const input = this.provider.getInput({ name: 'XONE:K2', channel: this.channel })
@@ -68,7 +83,9 @@ export class K2 {
 
             this.input = input
             this.output = output
+
             this.attachInputEvents()
+
             this.state = K2State.Connected
             this.emitter.emit('connect')
 
@@ -80,6 +97,17 @@ export class K2 {
             this.state = K2State.Error
             this.emitter.emit('connectionError', error)
         }
+    }
+
+    async disconnect(): Promise<void> {
+        if (this.state === K2State.Disconnected) {
+            return
+        }
+
+        // @TODO: Remove listeners
+
+        this.state = K2State.Disconnected
+        this.emitter.emit('disconnect')
     }
 
     on<T extends EventNames>(event: T, callback: Handler<Events[T]>): void {

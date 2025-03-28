@@ -131,12 +131,6 @@
     "amber",
   ];
 
-  // Map the UI LED ID to the corresponding hardware LED ID
-  function mapLedIdToHardwareLedId(uiLedId: string): string {
-    // No mapping needed anymore - using correct IDs directly
-    return uiLedId;
-  }
-
   // Handle LED clicks in UI
   function handleLedClick(event: CustomEvent<{ id: string }>) {
     const { id } = event.detail;
@@ -219,37 +213,6 @@
         encoderActives = { ...encoderActives }; // Trigger reactivity
       }, 300);
     }
-  }
-
-  // Toggle LED color function - used by both UI clicks and physical button presses
-  function toggleLedColor(id: string) {
-    let colorMap: Record<string, "off" | "red" | "green" | "amber">;
-
-    // Determine which color map to use
-    if (id in buttonColors) {
-      colorMap = buttonColors;
-    } else if (id in ledColors) {
-      colorMap = ledColors;
-    } else {
-      return "off"; // Unknown LED
-    }
-
-    // Cycle through colors
-    const colorIndex = colorCycle.indexOf(colorMap[id]);
-    const nextColorIndex = (colorIndex + 1) % colorCycle.length;
-    const newColor = colorCycle[nextColorIndex];
-
-    // Update color map
-    colorMap[id] = newColor;
-
-    // Trigger reactivity
-    if (id in buttonColors) {
-      buttonColors = { ...buttonColors };
-    } else {
-      ledColors = { ...ledColors };
-    }
-
-    return newColor;
   }
 
   // LED Scenario handlers
@@ -335,6 +298,11 @@
       k2.on("connect", () => {
         isConnected = true;
         handleEvent("MIDI: K2 controller connected");
+      });
+
+      k2.on("disconnect", () => {
+        isConnected = false;
+        handleEvent("MIDI: K2 controller disconnected");
       });
 
       k2.on("connectionError", (event: unknown) => {
@@ -461,6 +429,7 @@
   <div class="content-container">
     <div class="controller-container">
       <K2Surface
+        {isConnected}
         encoder1Value={encoderValues.encoder1}
         encoder1Active={encoderActives.encoder1}
         encoder2Value={encoderValues.encoder2}
