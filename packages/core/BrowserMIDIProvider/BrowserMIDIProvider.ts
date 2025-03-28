@@ -1,4 +1,5 @@
-import type { MIDIEventName, MIDIEventTypes, MIDIIdentifierOptions, MIDIInput, MIDIOutput, MIDIProvider } from "../interfaces/MIDIProvider";
+import mitt, { type Emitter } from 'mitt'
+import type { MIDIEventName, MIDIEventTypes, MIDIIdentifierOptions, MIDIInput, MIDIOutput, MIDIProvider, MIDIProviderEventName, MIDIProviderEvents } from "../interfaces/MIDIProvider";
 import { BrowserMIDIInput } from "./BrowserMIDIInput";
 import { BrowserMIDIOutput } from "./BrowserMIDIOutput";
 
@@ -7,8 +8,10 @@ export class BrowserMIDIProvider implements MIDIProvider {
     private inputs: Record<string, MIDIInput> = {}
     private outputs: Record<string, MIDIOutput> = {}
     private stateChangeListener: ((event: WebMidi.MIDIConnectionEvent) => void) | null = null
+    private emitter: Emitter<MIDIProviderEvents>
 
     constructor() {
+        this.emitter = mitt()
     }
 
     async connect() {
@@ -23,7 +26,7 @@ export class BrowserMIDIProvider implements MIDIProvider {
 
     private attachListeners() {
         this.stateChangeListener = (event) => {
-            console.log('MIDI access state changed', event)
+            this.emitter.emit('statechange', event)
         }
 
         this.midiAccess.addEventListener('statechange', this.stateChangeListener)
@@ -78,4 +81,11 @@ export class BrowserMIDIProvider implements MIDIProvider {
         return `${options.name}-${options.channel}`
     }
 
+    on<T extends MIDIProviderEventName>(event: T, callback: (data: MIDIProviderEvents[T]) => void): void {
+        this.emitter.on(event, callback)
+    }
+
+    off<T extends MIDIProviderEventName>(event: T, callback: (data: MIDIProviderEvents[T]) => void): void {
+        this.emitter.off(event, callback)
+    }
 }

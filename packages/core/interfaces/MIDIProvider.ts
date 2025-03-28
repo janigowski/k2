@@ -1,8 +1,17 @@
+export type MIDIProviderEvents = {
+    statechange: WebMidi.MIDIConnectionEvent
+}
+
+export type MIDIProviderEventName = keyof MIDIProviderEvents
+
 export interface MIDIProvider {
     connect(): Promise<void>
     disconnect(): Promise<void>
     getInput(options: MIDIIdentifierOptions): MIDIInput | undefined
     getOutput(options: MIDIIdentifierOptions): MIDIOutput | undefined
+
+    on<T extends MIDIProviderEventName>(event: T, callback: (data: MIDIProviderEvents[T]) => void): void
+    off<T extends MIDIProviderEventName>(event: T, callback: (data: MIDIProviderEvents[T]) => void): void
 }
 
 export type MIDIIdentifierOptions = {
