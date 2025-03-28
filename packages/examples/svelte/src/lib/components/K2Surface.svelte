@@ -4,6 +4,7 @@
   import Knob from "./Knob.svelte";
   import LED from "./LED.svelte";
   import Fader from "./Fader.svelte";
+  import Status from "./Status.svelte";
 
   // Define color type locally instead of importing
   type Color = "red" | "green" | "amber";
@@ -94,6 +95,8 @@
   export let layerButtonColor: "off" | "red" | "amber" | "green" = "off";
   export let exitSetupButtonColor: "off" | "red" | "amber" | "green" = "off";
 
+  export let isConnected = false;
+
   function handleLedClick(event: CustomEvent<{ id: string }>) {
     const { id } = event.detail;
     dispatch("ledClick", { id });
@@ -105,6 +108,8 @@
     <div class="k2-logo">XONE:K2</div>
     <div class="k2-manufacturer">ALLEN&HEATH</div>
   </div>
+
+  <Status {isConnected} />
 
   <div class="k2-grid">
     <!-- Encoders Row (non-clickable) -->
