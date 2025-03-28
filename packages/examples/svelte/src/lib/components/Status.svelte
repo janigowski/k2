@@ -12,9 +12,7 @@
 
 <style>
   .status {
-    padding: 1rem;
-    border-radius: 4px;
-    margin: 1rem 0;
+    transition: all 0.2s;
   }
 
   .status.connected {
