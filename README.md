@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/header.png" alt="K2 MIDI Controller Library Banner" width="100%" />
+  <img src="https://raw.githubusercontent.com/janigowski/k2/main/docs/header.png" alt="K2 MIDI Controller Library Banner" width="100%" />
 </p>
 
 # Allen&Heath K2 MIDI Controller Library 🎛️
