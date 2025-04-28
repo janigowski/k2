@@ -1,15 +1,12 @@
 {
   "name": "k2",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "module": "index.ts",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/janigowski/k2.git"
-  },
+  "repository": "github:janigowski/k2",
   "homepage": "https://github.com/janigowski/k2#readme",
   "bugs": {
     "url": "https://github.com/janigowski/k2/issues"
