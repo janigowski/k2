@@ -6,6 +6,14 @@
   "workspaces": [
     "packages/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janigowski/k2.git"
+  },
+  "homepage": "https://github.com/janigowski/k2#readme",
+  "bugs": {
+    "url": "https://github.com/janigowski/k2/issues"
+  },
   "scripts": {
     "test": "vitest",
     "test:watch": "vitest --watch",
