@@ -152,30 +152,56 @@ K2 can be used in two ways: Direct Mode and Mapping Layer. Choose the approach t
 
 Direct mode gives you immediate access to K2's controls and events. Perfect for prototyping or when you need fine-grained control.
 
-```javascript
-import { createK2Controller } from 'k2';
+```typescript
+import { K2, BrowserMIDIProvider } from 'k2';
 
 // Initialize controller with MIDI channel (1-16, default: 1)
-const k2 = createK2Controller({ channel: 1 });
+const k2 = new K2(1, new BrowserMIDIProvider());
 
 // Wait for MIDI connection
-k2.connect().then(() => {
-  // Direct control of buttons and LEDs
-  k2.on('button1.press', () => {
-    console.log('Button 1 was pressed!');
-    k2.led.button1.on();
+k2.on('connect', () => {
+  console.log('K2 connected!');
+  
+  // Handle button press
+  k2.on('button.press', (button) => {
+    console.log(`${button.name} was pressed!`);
+    k2.highlightLED(button.name, 'red');
   });
 
-  // Direct knob handling
-  k2.on('knob1.change', (value) => {
-    console.log(`Knob 1 value: ${value}`);
+  // Handle button release
+  k2.on('button.release', (button) => {
+    console.log(`${button.name} was released!`);
+    k2.unhighlightLED(button.name);
   });
 
-  // Direct fader control
-  k2.on('fader1.change', (value) => {
-    console.log(`Fader 1 position: ${value}`);
+  // Handle knob changes
+  k2.on('knob.change', ({ name, value }) => {
+    console.log(`${name} value: ${value}`);
+  });
+
+  // Handle fader changes
+  k2.on('fader.change', ({ name, value }) => {
+    console.log(`${name} position: ${value}`);
+  });
+
+  // Handle encoder turns
+  k2.on('encoder.turn', ({ name, value }) => {
+    console.log(`${name} turned ${value > 0 ? 'right' : 'left'}`);
   });
 });
+
+// Handle connection errors
+k2.on('connectionError', (error) => {
+  console.error('Connection error:', error);
+});
+
+// Handle disconnection
+k2.on('disconnect', () => {
+  console.log('K2 disconnected');
+});
+
+// Connect to the device
+k2.connect();
 ```
 
 ### Mapping Layer 🔄
@@ -213,12 +239,12 @@ Mapping Layer allows you to define control mappings in configuration files, maki
 
 #### 2. Create Mapping Layer
 
-```javascript
-import { createK2Controller, createMappingLayer } from 'k2';
+```typescript
+import { K2, BrowserMIDIProvider, createMappingLayer } from 'k2';
 import myDawMappings from './daw-mappings.json';
 
 // Create controller and mapping layer
-const k2 = createK2Controller();
+const k2 = new K2(1, new BrowserMIDIProvider());
 const dawMapping = createMappingLayer(k2, myDawMappings);
 
 // Connect to your DAW
@@ -252,7 +278,7 @@ The Mapping Layer automatically:
 - Handles value scaling and range mapping
 - Manages bidirectional communication
 
-```javascript
+```typescript
 // Your application can update state anytime
 daw.on('playStateChanged', (isPlaying) => {
   // Mapping layer automatically updates K2 LEDs
@@ -297,11 +323,7 @@ daw.on('playStateChanged', (isPlaying) => {
 
 ### Controller Creation
 ```typescript
-interface K2Options {
-  channel: number;  // MIDI channel (1-16)
-}
-
-const k2 = createK2Controller({ channel: 1 });
+const k2 = new K2(channel: number, provider: MIDIProvider);
 ```
 
 ### Available Controls
@@ -325,7 +347,7 @@ console.log(K2_CONTROLS);
 K2 makes it easy to build settings UI for your DAW or application. Here's an example of implementing MIDI learn functionality:
 
 ```typescript
-import { createK2Controller, K2_CONTROLS } from 'k2';
+import { K2, BrowserMIDIProvider, K2_CONTROLS } from 'k2';
 
 // Create your settings component
 function MidiMappingSettings({ onSave }) {
@@ -333,7 +355,7 @@ function MidiMappingSettings({ onSave }) {
   const [learning, setLearning] = useState(null);
   
   // Initialize K2
-  const k2 = createK2Controller({ channel: 1 });
+  const k2 = new K2(1, new BrowserMIDIProvider());
   
   // Start MIDI learn for a specific action
   const startMidiLearn = (action) => {
@@ -463,7 +485,7 @@ const mappings = {
 };
 
 const userMappings = createMappingConfig(mappings);
-const k2 = createK2Controller({ channel: 1 });
+const k2 = new K2(1, new BrowserMIDIProvider());
 const dawMapping = createMappingLayer(k2, userMappings);
 
 // The resulting configuration will be:
