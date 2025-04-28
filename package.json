@@ -1,5 +1,6 @@
 {
   "name": "k2",
+  "version": "0.0.1-alpha",
   "module": "index.ts",
   "type": "module",
   "workspaces": [
