@@ -153,10 +153,13 @@ K2 can be used in two ways: Direct Mode and Mapping Layer. Choose the approach t
 Direct mode gives you immediate access to K2's controls and events. Perfect for prototyping or when you need fine-grained control.
 
 ```typescript
-import { K2, BrowserMIDIProvider } from 'k2';
+import { createK2Controller, BrowserMIDIProvider } from 'k2';
 
 // Initialize controller with MIDI channel (1-16, default: 1)
-const k2 = new K2(1, new BrowserMIDIProvider());
+const k2 = createK2Controller({
+  channel: 1,
+  provider: new BrowserMIDIProvider()
+});
 
 // Wait for MIDI connection
 k2.on('connect', () => {
@@ -240,11 +243,14 @@ Mapping Layer allows you to define control mappings in configuration files, maki
 #### 2. Create Mapping Layer
 
 ```typescript
-import { K2, BrowserMIDIProvider, createMappingLayer } from 'k2';
+import { createK2Controller, BrowserMIDIProvider, createMappingLayer } from 'k2';
 import myDawMappings from './daw-mappings.json';
 
 // Create controller and mapping layer
-const k2 = new K2(1, new BrowserMIDIProvider());
+const k2 = createK2Controller({
+  channel: 1,
+  provider: new BrowserMIDIProvider()
+});
 const dawMapping = createMappingLayer(k2, myDawMappings);
 
 // Connect to your DAW
@@ -347,18 +353,23 @@ console.log(K2_CONTROLS);
 K2 makes it easy to build settings UI for your DAW or application. Here's an example of implementing MIDI learn functionality:
 
 ```typescript
-import { K2, BrowserMIDIProvider, K2_CONTROLS } from 'k2';
+import { createK2Controller, BrowserMIDIProvider, K2_CONTROLS } from 'k2';
+import { useState, useEffect, useCallback } from 'react';
+
+// Create K2 instance outside component
+const k2 = createK2Controller({
+  channel: 1,
+  provider: new BrowserMIDIProvider()
+});
 
 // Create your settings component
 function MidiMappingSettings({ onSave }) {
   const [mappings, setMappings] = useState({});
   const [learning, setLearning] = useState(null);
-  
-  // Initialize K2
-  const k2 = new K2(1, new BrowserMIDIProvider());
+  const [activeListeners, setActiveListeners] = useState([]);
   
   // Start MIDI learn for a specific action
-  const startMidiLearn = (action) => {
+  const startMidiLearn = useCallback((action) => {
     setLearning(action);
     
     // Listen for any control change
@@ -387,13 +398,21 @@ function MidiMappingSettings({ onSave }) {
     
     // Store listeners for cleanup
     setActiveListeners(listeners);
-  };
+  }, []);
   
   // Stop MIDI learn
-  const stopLearning = () => {
+  const stopLearning = useCallback(() => {
     setLearning(null);
     activeListeners.forEach(listener => listener.remove());
-  };
+    setActiveListeners([]);
+  }, [activeListeners]);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopLearning();
+    };
+  }, [stopLearning]);
   
   return (
     <div className="midi-settings">
@@ -442,67 +461,4 @@ function MappingRow({ label, action, mapping, onLearn }) {
     </div>
   );
 }
-```
-
-### Using the Mappings
-
-Once you have the user's mappings, you can create a mapping configuration:
-
-```typescript
-// Convert UI mappings to K2 mapping configuration
-function createMappingConfig(uiMappings) {
-  const config = {
-    name: "User DAW Setup",
-    controls: {},
-    feedback: {}
-  };
-
-  // Convert each mapping to control configuration
-  for (const [action, mapping] of Object.entries(uiMappings)) {
-    // Set up control mapping
-    config.controls[mapping.control] = {
-      action: action
-    };
-
-    // Add specific settings based on control type
-    if (mapping.type === 'button') {
-      config.controls[mapping.control].feedback = `${action}.active`;
-      config.feedback[`led.${mapping.control}`] = `${action}.active`;
-    }
-
-    if (mapping.type === 'knob' || mapping.type === 'fader') {
-      config.controls[mapping.control].range = [0, 127];
-    }
-  }
-
-  return config;
-}
-
-// Example usage
-const mappings = {
-  'transport.play': { type: 'button', control: 'button1' },
-  'mixer.volume': { type: 'knob', control: 'knob1' }
-};
-
-const userMappings = createMappingConfig(mappings);
-const k2 = new K2(1, new BrowserMIDIProvider());
-const dawMapping = createMappingLayer(k2, userMappings);
-
-// The resulting configuration will be:
-// {
-//   name: "User DAW Setup",
-//   controls: {
-//     button1: {
-//       action: "transport.play",
-//       feedback: "transport.play.active"
-//     },
-//     knob1: {
-//       action: "mixer.volume",
-//       range: [0, 127]
-//     }
-//   },
-//   feedback: {
-//     "led.button1": "transport.play.active"
-//   }
-// }
 ```
